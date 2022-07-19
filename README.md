@@ -1,20 +1,17 @@
 # License Tracker
 
-License Tracker is a command-line tool that lets you track VM and sole-tenant
-node usage for the purpose of license reporting.
+License Tracker is a tool that lets you track VM and sole-tenant node usage for
+the purpose of license reporting. 
 
-The tool works by analyzing Compute Engine audit logs to determine _placements_ 
-for each VM instance. A placement describes the time period during which
-a VM instance is running on a specific physical server. Each time a VM is migrated 
-from one physical server to another marks the end of one placement and starts another.
+The tool is designed to be deployed as a [Cloud Run job](https://cloud.google.com/run/docs/create-jobs)
+and invoked periodically, typically once a day. The tool analyzes the Compute Engine audit logs of your
+Google Cloud projects and writes its results to a BigQuery dataset. You can then use this dataset
+to visualize VM and sole-tenant node usage and determine your consumption of BYOL licenses:
 
-When you run the License Tracker tool the first time, it analyzes Compute Engine
-usage of the past 90 days and writes its result to BigQuery. On subsequent runs,
-the tool analyzes usage that occurred between its last invocation and the beginning
-of the current day (0:00 UTC) and updates the BigQuery dataset accordingly.
+![Architecture](https://cloud.google.com/static/compute/images/tracking-vm-and-sole-tenant-usage-architecture.svg)
 
 For detailed instructions on deploying and using the License Tracker tool, see 
-[Tracking VM and sole-tenant node usage for license reportings](https://cloud.google.com/compute/docs/nodes/determining-server-usage)
+[Tracking VM and sole-tenant node usage for license reporting](https://cloud.google.com/compute/docs/nodes/determining-server-usage)
 on the Google Cloud website.
 
 --- 
