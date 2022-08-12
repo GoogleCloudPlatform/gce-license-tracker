@@ -64,7 +64,8 @@ namespace Google.Solutions.LicenseTracker.Data.Services.Adapters
             this.logger = logger;
             this.service = new LoggingService(new Apis.Services.BaseClientService.Initializer()
             {
-                HttpClientInitializer = credential
+                HttpClientInitializer = credential,
+                ApplicationName = UserAgent.Default.ToString()
             });
         }
 

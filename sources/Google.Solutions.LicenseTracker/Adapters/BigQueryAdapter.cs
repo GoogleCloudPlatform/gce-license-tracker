@@ -69,7 +69,8 @@ namespace Google.Solutions.LicenseTracker.Adapters
             this.service = new BigqueryService(
                new Apis.Services.BaseClientService.Initializer()
                {
-                   HttpClientInitializer = credential
+                   HttpClientInitializer = credential,
+                   ApplicationName = UserAgent.Default.ToString()
                });
         }
 

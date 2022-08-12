@@ -73,7 +73,8 @@ namespace Google.Solutions.LicenseTracker.Adapters
             this.service = new ComputeService(
                 new Apis.Services.BaseClientService.Initializer()
                 {
-                    HttpClientInitializer = credential
+                    HttpClientInitializer = credential,
+                    ApplicationName = UserAgent.Default.ToString()
                 });
         }
 
