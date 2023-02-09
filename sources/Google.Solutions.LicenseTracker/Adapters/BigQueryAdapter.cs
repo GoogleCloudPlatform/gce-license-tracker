@@ -24,6 +24,7 @@ using Google.Apis.Bigquery.v2;
 using Google.Apis.Bigquery.v2.Data;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Util;
+using System.Diagnostics;
 
 namespace Google.Solutions.LicenseTracker.Adapters
 {
@@ -43,7 +44,7 @@ namespace Google.Solutions.LicenseTracker.Adapters
             IList<TableFieldSchema> fields,
             CancellationToken cancellationToken);
 
-        Task<Table> CreateViewAsync(
+        Task<Table> CreateOrPatchViewAsync(
             TableLocator view,
             string query,
             CancellationToken cancellationToken);
@@ -62,6 +63,11 @@ namespace Google.Solutions.LicenseTracker.Adapters
     internal class BigQueryAdapter : IBigQueryAdapter
     {
         private readonly BigqueryService service;
+
+        private static string NormalizeQueryWhitespace(string query)
+        {
+            return query.Replace("  ", " ").Replace("\r\n", "\n");
+        }
 
         public BigQueryAdapter(
             ICredential credential)
@@ -160,37 +166,123 @@ namespace Google.Solutions.LicenseTracker.Adapters
             }
         }
 
-        public async Task<Table> CreateViewAsync(
+        public async Task<Table> CreateOrPatchViewAsync(
             TableLocator view,
             string query,
             CancellationToken cancellationToken)
         {
+            //
+            // Check if the view exists already.
+            //
+            Table? existingView;
             try
             {
-                var dataset = view.Dataset;
-                return await this.service.Tables
-                        .Insert(new Table()
-                        {
-                            TableReference = new TableReference()
-                            {
-                                DatasetId = dataset.Name,
-                                ProjectId = dataset.ProjectId,
-                                TableId = view.Name
-                            },
-                            View = new ViewDefinition()
-                            {
-                                Query = query,
-                                UseLegacySql = false
-                            }
-                        },
-                        dataset.ProjectId,
-                        dataset.Name)
+                existingView = await this.service
+                    .Tables
+                    .Get(view.ProjectId, view.Dataset.Name, view.Name)
                     .ExecuteAsync(cancellationToken);
+            }
+            catch (GoogleApiException e) when (e.IsNotFoundError())
+            {
+                existingView = null;
             }
             catch (GoogleApiException e) when (e.IsAccessDeniedError())
             {
                 throw new ResourceAccessDeniedException(
-                    $"Insufficient permissions to create view in dataset {view.Dataset}",
+                    $"Insufficient permissions to access view in dataset {view.Dataset}",
+                    e);
+            }
+
+            var dataset = view.Dataset;
+            var viewDefinition = new Table()
+            {
+                TableReference = new TableReference()
+                {
+                    DatasetId = dataset.Name,
+                    ProjectId = dataset.ProjectId,
+                    TableId = view.Name
+                },
+                View = new ViewDefinition()
+                {
+                    Query = query,
+                    UseLegacySql = false
+                }
+            };
+
+            try
+            {
+                if (existingView == null)
+                {
+                    //
+                    // Table does not exist yet -> create.
+                    //
+                    return await this.service
+                        .Tables
+                        .Insert(
+                            new Table()
+                            {
+                                TableReference = new TableReference()
+                                {
+                                    DatasetId = dataset.Name,
+                                    ProjectId = dataset.ProjectId,
+                                    TableId = view.Name
+                                },
+                                View = new ViewDefinition()
+                                {
+                                    Query = query,
+                                    UseLegacySql = false
+                                }
+                            },
+                            dataset.ProjectId,
+                            dataset.Name)
+                        .ExecuteAsync(cancellationToken);
+                }
+                else if (existingView != null && NormalizeQueryWhitespace(existingView.View.Query) 
+                    != NormalizeQueryWhitespace(query))
+                {
+                    //
+                    // Table exists, but query is outdated -> patch
+                    //
+                    var newView = await this.service
+                        .Tables
+                        .Patch(
+                            new Table()
+                            {
+                                TableReference = new TableReference()
+                                {
+                                    DatasetId = dataset.Name,
+                                    ProjectId = dataset.ProjectId,
+                                    TableId = view.Name
+                                },
+                                View = new ViewDefinition()
+                                {
+                                    Query = query,
+                                    UseLegacySql = false
+                                }
+                            },
+                            dataset.ProjectId,
+                            dataset.Name,
+                            view.Name)
+                        .ExecuteAsync(cancellationToken);
+
+                    Debug.Assert(NormalizeQueryWhitespace(newView.View.Query) == 
+                        NormalizeQueryWhitespace(query));
+                    return newView;
+                }
+                else
+                {
+                    //
+                    // Table exists with current query.
+                    //
+                    Debug.Assert(existingView != null);
+                    return existingView!;
+                }
+            }
+            catch (GoogleApiException e) when (e.IsAccessDeniedError())
+            {
+                throw new ResourceAccessDeniedException(
+                    $"Insufficient permissions to create or update " +
+                    $"view in dataset {view.Dataset}",
                     e);
             }
         }
