@@ -102,23 +102,6 @@ namespace Google.Solutions.LicenseTracker.Services
                             .ConfigureAwait(false);
                     }
 
-                    foreach (var view in new Dictionary<string, string>()
-                    {
-                        { ViewNames.Placements, ViewDefinitions.Placements(dataset.Name) },
-                        { ViewNames.NodeTypeDetails, ViewDefinitions.NodeTypeDetails() }
-                    })
-                    {
-                        await this.bigQueryAdapter
-                            .CreateViewAsync(
-                                new TableLocator(
-                                    dataset.ProjectId,
-                                    dataset.Name,
-                                    view.Key),
-                                view.Value,
-                                cancellationToken)
-                            .ConfigureAwait(false);
-                    }
-
                     this.logger.LogInformation("Dataset {name} created", dataset);
                 }
                 catch (Exception)
@@ -126,6 +109,34 @@ namespace Google.Solutions.LicenseTracker.Services
                     this.logger.LogError("Failed to create dataset {name}", dataset);
                     throw;
                 }
+            }
+
+            //
+            // Ensure that views exist and are up-to-date.
+            //
+            try
+            {
+                foreach (var view in new Dictionary<string, string>()
+                    {
+                        { ViewNames.Placements, ViewDefinitions.Placements(dataset.Name) },
+                        { ViewNames.NodeTypeDetails, ViewDefinitions.NodeTypeDetails() }
+                    })
+                {
+                    await this.bigQueryAdapter
+                        .CreateOrPatchViewAsync(
+                            new TableLocator(
+                                dataset.ProjectId,
+                                dataset.Name,
+                                view.Key),
+                            view.Value,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception)
+            {
+                this.logger.LogError("Failed to create or update views in dataset {name}", dataset);
+                throw;
             }
         }
 
@@ -452,9 +463,12 @@ namespace Google.Solutions.LicenseTracker.Services
                 var nodeTypeDetails = new[]
                 {
                     new { NodeType = "c2-node-60-240", CoreCount = 36 },
+                    new { NodeType = "c3-node-176-352", CoreCount = 96 },
                     new { NodeType = "m1-node-96-1433", CoreCount = 56 },
                     new { NodeType = "m1-node-160-3844", CoreCount = 88 },
                     new { NodeType = "m2-node-416-11776", CoreCount = 224 },
+                    new { NodeType = "m3-node-128-1952", CoreCount = 72 },
+                    new { NodeType = "m3-node-128-3904", CoreCount = 72 },
                     new { NodeType = "n1-node-96-624", CoreCount = 56 },
                     new { NodeType = "n2-node-80-640", CoreCount = 48 },
                     new { NodeType = "n2-node-128-864", CoreCount = 72 },
