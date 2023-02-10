@@ -463,6 +463,7 @@ namespace Google.Solutions.LicenseTracker.Services
                 var nodeTypeDetails = new[]
                 {
                     new { NodeType = "c2-node-60-240", CoreCount = 36 },
+                    new { NodeType = "c3-node-176-352", CoreCount = 96 },
                     new { NodeType = "m1-node-96-1433", CoreCount = 56 },
                     new { NodeType = "m1-node-160-3844", CoreCount = 88 },
                     new { NodeType = "m2-node-416-11776", CoreCount = 224 },
