@@ -116,7 +116,7 @@ namespace Google.Solutions.LicenseTracker
                 },
                 {
                     "analysis-window=",
-                    $"Size of analysis window (Default: {DefaultAnalysisWindowSizeInDays} days",
+                    $"Size of analysis window (in days, default: {DefaultAnalysisWindowSizeInDays})",
                     v => commandLine.AnalysisWindowSizeInDays = uint.Parse(v)
                 },
                 {
