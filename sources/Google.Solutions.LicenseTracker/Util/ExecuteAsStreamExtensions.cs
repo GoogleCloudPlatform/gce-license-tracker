@@ -74,7 +74,7 @@ namespace Google.Solutions.LicenseTracker.Util
                         .ExecuteAsStreamOrThrowAsync(cancellationToken)
                         .ConfigureAwait(false); ;
                 }
-                catch (GoogleApiException e) when (e.Error != null && e.Error.Code == 429)
+                catch (GoogleApiException e) when (e.Error != null && (e.Error.Code == 429 || e.Error.Code == 500))
                 {
                     // Too many requests.
                     if (retries < backOff.MaxNumOfRetries)
