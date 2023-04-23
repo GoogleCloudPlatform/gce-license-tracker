@@ -33,6 +33,9 @@ namespace Google.Solutions.LicenseTracker.Services
 {
     public interface IInstanceHistoryService
     {
+        /// <summary>
+        /// Reconstruct the history for VMs in a given set of projects.
+        /// </summary>
         Task<InstanceSetHistory> BuildInstanceSetHistoryAsync(
             IEnumerable<ProjectLocator> projectIds,
             DateTime startDate,
@@ -163,7 +166,8 @@ namespace Google.Solutions.LicenseTracker.Services
                 // when doing so. Therefore, we're conservative and only query
                 // one project at a time.
                 //
-                await this.auditLogAdapter.ProcessInstanceEventsAsync(
+                await this.auditLogAdapter
+                    .ProcessInstanceEventsAsync(
                         new[] { projectId },
                         builder.StartDate,
                         new Processor(builder),
