@@ -34,11 +34,11 @@ namespace Google.Solutions.LicenseTracker.Test.Services
     public class TestPlacementReportService
     {
         //---------------------------------------------------------------------
-        // ListPlacementEvents.
+        // CreateReport.
         //---------------------------------------------------------------------
 
         [Test]
-        public void WhenStartAndEndDateReversed_ThenListPlacementEventsThrowsException()
+        public void WhenStartAndEndDateReversed_ThenCreateReportThrowsException()
         {
             var service = new PlacementReportService(
                 new Mock<IInstanceHistoryService>().Object,
@@ -46,7 +46,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 new NullLogger<PlacementReportService>());
 
             ExceptionAssert.ThrowsAggregateException<ArgumentException>(
-                () => service.ListPlacementEvents(
+                () => service.CreateReport(
                     new[] { new ProjectLocator("project-1") },
                     180,
                     new DateTime(2020, 2, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -55,7 +55,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         }
 
         [Test]
-        public void WhenStarDateEscapesAnalysisWindow_ThenListPlacementEventsThrowsException()
+        public void WhenStarDateEscapesAnalysisWindow_ThenCreateReportThrowsException()
         {
             var service = new PlacementReportService(
                 new Mock<IInstanceHistoryService>().Object,
@@ -63,7 +63,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 new NullLogger<PlacementReportService>());
 
             ExceptionAssert.ThrowsAggregateException<ArgumentException>(
-                () => service.ListPlacementEvents(
+                () => service.CreateReport(
                     new[] { new ProjectLocator("project-1") },
                     180,
                     DateTime.UtcNow.AddDays(-181),
@@ -106,7 +106,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 licenseService.Object,
                 new NullLogger<PlacementReportService>());
 
-            var report = await service.ListPlacementEvents(
+            var report = await service.CreateReport(
                     new[] { new ProjectLocator("project-1") },
                     180,
                     startDate,
@@ -154,7 +154,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 licenseService.Object,
                 new NullLogger<PlacementReportService>());
 
-            var report = await service.ListPlacementEvents(
+            var report = await service.CreateReport(
                     new[] { new ProjectLocator("project-1") },
                     180,
                     startDate,
@@ -201,7 +201,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 licenseService.Object,
                 new NullLogger<PlacementReportService>());
 
-            var report = await service.ListPlacementEvents(
+            var report = await service.CreateReport(
                     new[] { new ProjectLocator("project-1") },
                     180,
                     startDate,

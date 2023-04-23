@@ -21,6 +21,9 @@
 
 namespace Google.Solutions.LicenseTracker.Data.History
 {
+    /// <summary>
+    /// History for a set of VMs in a certain time window.
+    /// </summary>
     public class InstanceSetHistory
     {
         public DateTime StartDate { get; }

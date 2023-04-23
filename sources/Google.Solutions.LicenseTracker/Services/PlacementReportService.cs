@@ -28,7 +28,7 @@ namespace Google.Solutions.LicenseTracker.Services
 {
     public interface IPlacementReportService
     {
-        Task<PlacementReport> ListPlacementEvents(
+        Task<PlacementReport> CreateReport(
             IEnumerable<ProjectLocator> projects,
             uint analysisWindowInDays,
             DateTime startDateInclusive,
@@ -52,7 +52,7 @@ namespace Google.Solutions.LicenseTracker.Services
             this.logger = logger;
         }
 
-        public async Task<PlacementReport> ListPlacementEvents(
+        public async Task<PlacementReport> CreateReport(
             IEnumerable<ProjectLocator> projects,
             uint analysisWindowInDays,
             DateTime startDateInclusive,
@@ -60,8 +60,8 @@ namespace Google.Solutions.LicenseTracker.Services
             CancellationToken cancellationToken)
         {
             //
-            // The reporting window defines the time range for which we 
-            // want to find events.
+            // The reporting window is the time range for which we 
+            // want to find placement events.
             //
             // The reporting window might be relatively short and usually
             // ends at or briefly before the current time (for example,
@@ -70,9 +70,9 @@ namespace Google.Solutions.LicenseTracker.Services
             // When analyzing the audit log, it's not sufficient to look
             // at events that happened during the reporting window:
             //
-            // (1) If an instance is already running at the beginning of
+            // (1) If an instance is in running state at the beginning of
             //     the reporting window, we must find out which node it's
-            //     running on., The audit log record that contains that 
+            //     running on. The audit log record that contains that 
             //     information will predate the reporting window, so we 
             //     must go further back in history.
             //
@@ -170,16 +170,53 @@ namespace Google.Solutions.LicenseTracker.Services
 
     public struct PlacementReport
     {
+        /// <summary>
+        /// Unordered list of placements that started during the analysis window.
+        /// </summary>
         public IList<PlacementEvent> StartedPlacements { get; init; }
+
+        /// <summary>
+        /// Unordered list of placements that ended during the analysis window.
+        /// </summary>
         public IList<PlacementEvent> EndedPlacements { get; init; }
     }
 
+    /// <summary>
+    /// A placement event is when an instance started
+    /// running on a certain server (= hardware). Examples for actions
+    /// that trigger placement events include:
+    /// 
+    /// * Starting or resuming an instance
+    /// * Migrating a sole-tenant instance to a different server
+    /// 
+    /// </summary>
     public struct PlacementEvent
     {
+        /// <summary>
+        /// Instance ID, uniquely identifies a VM across
+        /// space and time.
+        /// </summary>
         public ulong InstanceId { get; init; }
+
+        /// <summary>
+        /// Instance name, if known. Names can be reused, so they're
+        /// not unique across time.
+        /// </summary>
         public InstanceLocator? Instance { get; init; }
+
+        /// <summary>
+        /// Image from which the boot disk was created, if known.
+        /// </summary>
         public IImageLocator? Image { get; init; }
+
+        /// <summary>
+        /// Details for placement.
+        /// </summary>
         public InstancePlacement Placement { get; init; }
+
+        /// <summary>
+        /// License of boot disk, if known.
+        /// </summary>
         public LicenseInfo? License { get; init; }
     }
 }

@@ -49,11 +49,13 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
             if (lhs == Tenancies.SoleTenant || rhs == Tenancies.SoleTenant)
             {
+                //
                 // If one of them is sole tenant, both of them must be.
                 // that is because in case of SoleTenant, we have strong
                 // evidence that this is a SoleTenant VM whereas in the
                 // case of Fleet, there is simply an absence of evidence
                 // that it might be SoleTenant.
+                //
                 return Tenancies.SoleTenant;
             }
             else
