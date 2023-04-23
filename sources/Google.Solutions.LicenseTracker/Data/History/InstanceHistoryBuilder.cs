@@ -35,12 +35,16 @@ namespace Google.Solutions.LicenseTracker.Data.History
     /// </summary>
     internal class InstanceHistoryBuilder : IEventProcessor
     {
+        //
         // NB. Instance IDs stay unique throughout the history while VmInstanceReferences
         // become ambiguous. Therefore, it is important to use instance ID as primary
         // key, even though the reference is more user-friendly and meaningful.
+        //
 
+        //
         // Error events are not relevant for building the history, we only need
         // informational records.
+        //
         internal static EventOrder ProcessingOrder = EventOrder.NewestFirst;
         internal static IEnumerable<string> ProcessingSeverities => new[] { "NOTICE", "INFO" };
         internal static IEnumerable<string> ProcessingMethods =>
@@ -76,7 +80,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 var subsequentPlacement = this.placements.First();
                 if (placement.IsAdjacent(subsequentPlacement))
                 {
-                    // Placement are right adjacent -> merge.
+                    //
+                    // Placement are adjacent -> merge.
+                    //
                     placement = placement.Merge(subsequentPlacement);
                     this.placements.RemoveFirst();
                 }
@@ -238,6 +244,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 firstPlacement.From == this.lastStoppedOn &&
                 firstPlacement.To == this.lastStoppedOn)
             {
+                //
                 // This instance is running, but we did not see a 
                 // start event -- so the instance must have been started
                 // even earlier.
@@ -246,6 +253,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 // to count this instance as not running - therefore, extend
                 // the placement so that it covers the entire analyzed time
                 // frame. 
+                //
                 sanitizedPlacements = new[]
                 {
                     new InstancePlacement(
@@ -304,8 +312,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
             Debug.Assert(date <= this.lastEventDate);
             this.lastEventDate = date;
 
+            //
             // NB. We might get multiple calls for a single instance, each providing some, but
             // potentially not all information.
+            //
             if (this.reference == null)
             {
                 this.reference = reference;
@@ -316,8 +326,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 this.image = image;
             }
 
+            //
             // Register Fleet placement - this might be merged with an existing
             // SoleTenant placement if there has been one registerd before.
+            //
             AddPlacement(Tenancies.Fleet, null, null, date);
         }
 
@@ -331,8 +343,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 this.reference = reference;
             }
 
+            //
             // Register Fleet placement - this might be merged with an existing
             // SoleTenant placement if there has been one registerd before.
+            //
             AddPlacement(Tenancies.Fleet, null, null, date);
         }
 
@@ -355,8 +369,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
             Debug.Assert(serverId != null);
             this.lastEventDate = date;
 
+            //
             // NB. While the serverId is always populated, the nodeType
             // is null for events emitted before August 2020.
+            //
 
             AddPlacement(Tenancies.SoleTenant, serverId, nodeType, date);
         }
