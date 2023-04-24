@@ -38,9 +38,23 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         {
             var history = new ConfigurationHistory<MachineTypeLocator>(
                 1,
+                null,
                 Enumerable.Empty<ConfigurationChange<MachineTypeLocator>>());
 
             Assert.IsNull(history.GetHistoricValue(DateTime.UtcNow));
+        }
+
+        [Test]
+        public void WhenHistoryEmptyButCurrentValueSet_ThenGetHistoricValueReturnsCurrentValue()
+        {
+            var currentValue = new MachineTypeLocator("project-1", "zone-1", "type-1");
+
+            var history = new ConfigurationHistory<MachineTypeLocator>(
+                1,
+                currentValue,
+                Enumerable.Empty<ConfigurationChange<MachineTypeLocator>>());
+
+            Assert.AreEqual(currentValue, history.GetHistoricValue(DateTime.UtcNow));
         }
 
         [Test]
@@ -59,9 +73,13 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                     new MachineTypeLocator("project-1", "zone-1", "type-3")),
             };
 
-            var history = new ConfigurationHistory<MachineTypeLocator>(1, changes);
+            var history = new ConfigurationHistory<MachineTypeLocator>(
+                1,
+                new MachineTypeLocator("project-1", "zone-1", "type-1"),
+                changes);
 
-            Assert.IsNull(history.GetHistoricValue(new DateTime(2021, 12, 31, 23, 59, 59, DateTimeKind.Utc)));
+            Assert.IsNull(
+                history.GetHistoricValue(new DateTime(2021, 12, 31, 23, 59, 59, DateTimeKind.Utc)));
         }
 
         [Test]
@@ -80,7 +98,10 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                     new MachineTypeLocator("project-1", "zone-1", "type-3")),
             };
 
-            var history = new ConfigurationHistory<MachineTypeLocator>(1, changes);
+            var history = new ConfigurationHistory<MachineTypeLocator>(
+                1,
+                new MachineTypeLocator("project-1", "zone-1", "type-1"),
+                changes);
 
             Assert.AreEqual(
                 new MachineTypeLocator("project-1", "zone-1", "type-1"),

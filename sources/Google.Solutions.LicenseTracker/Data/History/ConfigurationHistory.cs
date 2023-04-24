@@ -39,13 +39,20 @@ namespace Google.Solutions.LicenseTracker.Data.History
         //
         private readonly List<ConfigurationChange<TConfigurationItem>> changes;
 
+        //
+        // Current value (at time of analysis, if the instance still exists).
+        //
+        private readonly TConfigurationItem? currentValue;
+
         public ulong InstanceId { get; }
 
         public ConfigurationHistory(
             ulong instanceId,
+            TConfigurationItem? currentValue,
             IEnumerable<ConfigurationChange<TConfigurationItem>> changes)
         {
             this.InstanceId = instanceId;
+            this.currentValue = currentValue;
             this.changes = changes.OrderByDescending(c => c.ChangeDate).ToList();
         }
 
@@ -54,7 +61,8 @@ namespace Google.Solutions.LicenseTracker.Data.History
             return this.changes
                 .Where(c => c.ChangeDate <= dateTime)
                 .FirstOrDefault()?
-                .NewValue;
+                .NewValue 
+                ?? this.currentValue;
         }
     }
 

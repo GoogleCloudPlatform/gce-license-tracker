@@ -51,7 +51,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     PlacementHistoryBuilder.ForDeletedInstance(
                         instanceId,
                         this.logger),
-                    new MachineTypeConfigurationHistoryBuilder(instanceId));
+                    new MachineTypeConfigurationHistoryBuilder(
+                        instanceId,
+                        null));
                 this.instanceBuilders[instanceId] = newBuilder;
                 return newBuilder;
             }
@@ -82,6 +84,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             ulong instanceId,
             InstanceLocator reference,
             ImageLocator? image,
+            MachineTypeLocator? machineType,
             InstanceState state,
             DateTime lastSeen,
             Tenancies tenancy,
@@ -100,7 +103,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     serverId,
                     nodeType,
                     this.logger),
-                new MachineTypeConfigurationHistoryBuilder(instanceId));
+                new MachineTypeConfigurationHistoryBuilder(
+                    instanceId,
+                    machineType));
         }
 
         public void AddExistingInstances(
@@ -163,6 +168,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                         (ulong)instance.Id!.Value,
                         instanceLocator,
                         image,
+                        MachineTypeLocator.FromString(instance.MachineType),
                         instance.Status == "RUNNING"
                             ? InstanceState.Running
                             : InstanceState.Terminated,
@@ -180,6 +186,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                         (ulong)instance.Id!.Value,
                         instanceLocator,
                         image,
+                        MachineTypeLocator.FromString(instance.MachineType),
                         instance.Status == "RUNNING"
                             ? InstanceState.Running
                             : InstanceState.Terminated,
