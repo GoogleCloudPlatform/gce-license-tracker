@@ -11,15 +11,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="google.apis.auth" Version="1.57.0" />
-    <PackageReference Include="Google.Apis.Bigquery.v2" Version="1.57.0.2668" />
-    <PackageReference Include="Google.Apis.CloudResourceManager.v1" Version="1.57.0.2677" />
-    <PackageReference Include="Google.Apis.Compute.v1" Version="1.57.0.2666" />
-    <PackageReference Include="Google.Apis.Logging.v2" Version="1.57.0.2660" />
-    <PackageReference Include="Google.Apis.ServiceUsage.v1" Version="1.57.0.2693" />
-    <PackageReference Include="Google.Apis.Storage.v1" Version="1.57.0.2647" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+    <PackageReference Include="google.apis.auth" Version="1.60.0" />
+    <PackageReference Include="Google.Apis.Bigquery.v2" Version="1.60.0.3019" />
+    <PackageReference Include="Google.Apis.CloudResourceManager.v1" Version="1.60.0.2950" />
+    <PackageReference Include="Google.Apis.Compute.v1" Version="1.60.0.3014" />
+    <PackageReference Include="Google.Apis.Logging.v2" Version="1.60.0.3011" />
+    <PackageReference Include="Google.Apis.ServiceUsage.v1" Version="1.60.0.3023" />
+    <PackageReference Include="Google.Apis.Storage.v1" Version="1.60.0.2981" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="mono.options" Version="6.12.0.148" />
   </ItemGroup>
 
@@ -49,6 +49,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>ZonalResourceLocator.tt</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Events\Config\" />
   </ItemGroup>
 
 </Project>

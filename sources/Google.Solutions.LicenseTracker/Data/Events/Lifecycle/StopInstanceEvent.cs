@@ -29,8 +29,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
         public const string BetaMethod = "beta.compute.instances.stop";
         public const string Method = "v1.compute.instances.stop";
 
-        public override EventCategory Category => EventCategory.Lifecycle;
-
         internal StopInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
             Debug.Assert(IsStopInstanceEvent(logRecord));

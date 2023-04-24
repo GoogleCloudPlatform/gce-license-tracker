@@ -51,7 +51,7 @@ namespace Google.Solutions.LicenseTracker.Util
 
         public override void Write<TState>(
             in LogEntry<TState> logEntry,
-            IExternalScopeProvider scopeProvider,
+            IExternalScopeProvider? scopeProvider,
             TextWriter textWriter)
         {
             var entry = new StructuredLogEntry()

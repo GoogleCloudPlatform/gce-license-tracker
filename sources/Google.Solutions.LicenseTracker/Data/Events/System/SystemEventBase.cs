@@ -26,7 +26,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.System
 {
     public abstract class SystemEventBase : InstanceEventBase
     {
-        public override EventCategory Category => EventCategory.System;
         protected SystemEventBase(LogRecord logRecord) : base(logRecord)
         {
             // System events are always INFO-level.

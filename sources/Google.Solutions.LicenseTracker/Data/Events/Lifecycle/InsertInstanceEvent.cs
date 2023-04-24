@@ -31,8 +31,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
         public const string Method = "v1.compute.instances.insert";
         public const string BetaMethod = "beta.compute.instances.insert";
 
-        public override EventCategory Category => EventCategory.Lifecycle;
-
         public IImageLocator? Image { get; }
 
         internal InsertInstanceEvent(LogRecord logRecord) : base(logRecord)

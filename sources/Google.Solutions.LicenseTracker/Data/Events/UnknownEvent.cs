@@ -25,8 +25,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events
 {
     public class UnknownEvent : EventBase
     {
-        public override EventCategory Category => EventCategory.Unknown;
-
         public UnknownEvent(LogRecord logRecord) : base(logRecord)
         {
         }

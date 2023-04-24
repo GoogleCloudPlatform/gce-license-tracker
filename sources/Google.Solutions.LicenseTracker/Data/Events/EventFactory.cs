@@ -82,14 +82,12 @@ namespace Google.Solutions.LicenseTracker.Data.Events
                 lifecycleEvents.TryGetValue(record.ProtoPayload.MethodName, out var lcFunc))
             {
                 var e = lcFunc(record);
-                Debug.Assert(e.Category == EventCategory.Lifecycle);
                 return e;
             }
             else if (record.ProtoPayload?.MethodName != null &&
                 systemEvents.TryGetValue(record.ProtoPayload.MethodName, out var sysFunc))
             {
                 var e = sysFunc(record);
-                Debug.Assert(e.Category == EventCategory.System);
                 return e;
             }
             else if (record.IsSystemEvent)
