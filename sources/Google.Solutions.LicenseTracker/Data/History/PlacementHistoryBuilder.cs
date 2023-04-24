@@ -64,7 +64,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
         //
         // Information accumulated as we go thru history.
         //
-        private readonly LinkedList<InstancePlacement> placements = new LinkedList<InstancePlacement>();
+        private readonly LinkedList<Placement> placements = new LinkedList<Placement>();
 
         private IImageLocator? image;
         private InstanceLocator? reference;
@@ -72,7 +72,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
         private DateTime? lastStoppedOn;
         private DateTime lastEventDate = DateTime.MaxValue;
 
-        private void AddPlacement(InstancePlacement placement)
+        private void AddPlacement(Placement placement)
         {
             if (this.placements.Any())
             {
@@ -141,11 +141,11 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
             if (tenancy == Tenancies.SoleTenant)
             {
-                AddPlacement(new InstancePlacement(serverId, nodeType, date, placedUntil));
+                AddPlacement(new Placement(serverId, nodeType, date, placedUntil));
             }
             else
             {
-                AddPlacement(new InstancePlacement(date, placedUntil));
+                AddPlacement(new Placement(date, placedUntil));
             }
         }
 
@@ -183,7 +183,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 Debug.Assert(tenancy != Tenancies.Unknown);
                 Debug.Assert(lastSeen != null);
 
-                AddPlacement(new InstancePlacement(
+                AddPlacement(new Placement(
                     tenancy,
                     serverId,
                     nodeType,
@@ -236,10 +236,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public PlacementHistory Build(DateTime reportStartDate)
         {
-            IEnumerable<InstancePlacement> sanitizedPlacements = this.placements;
+            IEnumerable<Placement> sanitizedPlacements = this.placements;
 
             if (this.placements.Count == 1 &&
-                this.placements.First() is InstancePlacement firstPlacement &&
+                this.placements.First() is Placement firstPlacement &&
                 firstPlacement.From == this.lastStoppedOn &&
                 firstPlacement.To == this.lastStoppedOn)
             {
@@ -255,7 +255,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 //
                 sanitizedPlacements = new[]
                 {
-                    new InstancePlacement(
+                    new Placement(
                         firstPlacement.Tenancy,
                         firstPlacement.ServerId,
                         firstPlacement.NodeType,

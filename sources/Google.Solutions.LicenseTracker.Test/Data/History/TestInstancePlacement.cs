@@ -35,12 +35,12 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenTwoPlacementsCloseAndNoneHasServer_ThenPlacementIsMerged()
         {
-            var p1 = new InstancePlacement(
+            var p1 = new Placement(
                 null,
                 null,
                 new DateTime(2020, 1, 1, 10, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 1, 1, 11, 0, 0, DateTimeKind.Utc));
-            var p2 = new InstancePlacement(
+            var p2 = new Placement(
                 null,
                 null,
                 new DateTime(2020, 1, 1, 11, 0, 50, DateTimeKind.Utc),
@@ -61,12 +61,12 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenTwoPlacementsCloseAndOneHasServer_ThenPlacementIsMerged()
         {
-            var p1 = new InstancePlacement(
+            var p1 = new Placement(
                 null,
                 null,
                 new DateTime(2020, 1, 1, 10, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 1, 1, 11, 0, 0, DateTimeKind.Utc));
-            var p2 = new InstancePlacement(
+            var p2 = new Placement(
                 "server-1",
                 SampleNodeType,
                 new DateTime(2020, 1, 1, 11, 0, 50, DateTimeKind.Utc),
@@ -88,12 +88,12 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenTwoPlacementsCloseAndBothHaveDifferentServers_ThenPlacementIsNotMerged()
         {
-            var p1 = new InstancePlacement(
+            var p1 = new Placement(
                 "server2",
                 null,
                 new DateTime(2020, 1, 1, 10, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 1, 1, 11, 0, 0, DateTimeKind.Utc));
-            var p2 = new InstancePlacement(
+            var p2 = new Placement(
                 "server1",
                 null,
                 new DateTime(2020, 1, 1, 11, 0, 50, DateTimeKind.Utc),
@@ -105,12 +105,12 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenTwoPlacementsNotClose_ThenPlacementIsNotMerged()
         {
-            var p1 = new InstancePlacement(
+            var p1 = new Placement(
                 null,
                 null,
                 new DateTime(2020, 1, 1, 10, 0, 0, DateTimeKind.Utc),
                 new DateTime(2020, 1, 1, 11, 0, 0, DateTimeKind.Utc));
-            var p2 = new InstancePlacement(
+            var p2 = new Placement(
                 null,
                 null,
                 new DateTime(2020, 1, 1, 11, 2, 0, DateTimeKind.Utc),

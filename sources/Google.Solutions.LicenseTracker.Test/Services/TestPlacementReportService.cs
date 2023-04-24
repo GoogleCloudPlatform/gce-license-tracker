@@ -99,7 +99,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                         new ImageLocator("project-1", "unknown-image"),
                         new []
                         {
-                            new InstancePlacement(endDate.AddDays(-1), endDate)
+                            new Placement(endDate.AddDays(-1), endDate)
                         }) }));
             var service = new PlacementReportService(
                 historyService.Object,
@@ -147,7 +147,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                         new ImageLocator("project-1", "unknown-image"),
                         new []
                         {
-                            new InstancePlacement(endDate.AddDays(-1), endDate) // till end
+                            new Placement(endDate.AddDays(-1), endDate) // till end
                         }) }));
             var service = new PlacementReportService(
                 historyService.Object,
@@ -194,7 +194,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                         new ImageLocator("project-1", "unknown-image"),
                         new []
                         {
-                            new InstancePlacement(endDate.AddDays(-2), endDate.AddDays(-1))
+                            new Placement(endDate.AddDays(-2), endDate.AddDays(-1))
                         }) }));
             var service = new PlacementReportService(
                 historyService.Object,

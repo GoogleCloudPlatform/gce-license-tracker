@@ -212,7 +212,7 @@ namespace Google.Solutions.LicenseTracker.Services
         /// <summary>
         /// Details for placement.
         /// </summary>
-        public InstancePlacement Placement { get; init; }
+        public Placement Placement { get; init; }
 
         /// <summary>
         /// License of boot disk, if known.

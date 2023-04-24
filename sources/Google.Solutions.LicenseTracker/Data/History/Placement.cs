@@ -30,7 +30,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
     /// on the fleet and was running from a certain point in time till
     /// a certain point in time.
     /// </summary>
-    public class InstancePlacement
+    public class Placement
     {
         public Tenancies Tenancy { get; }
 
@@ -64,7 +64,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             }
         }
 
-        internal InstancePlacement(
+        internal Placement(
             Tenancies tenancy,
             string? serverId,
             NodeTypeLocator? nodeType,
@@ -84,17 +84,17 @@ namespace Google.Solutions.LicenseTracker.Data.History
             this.To = to;
         }
 
-        public InstancePlacement(DateTime from, DateTime to)
+        public Placement(DateTime from, DateTime to)
             : this(Tenancies.Fleet, null, null, from, to)
         {
         }
 
-        public InstancePlacement(string? serverId, NodeTypeLocator? nodeType, DateTime from, DateTime to)
+        public Placement(string? serverId, NodeTypeLocator? nodeType, DateTime from, DateTime to)
             : this(Tenancies.SoleTenant, serverId, nodeType, from, to)
         {
         }
 
-        public bool IsAdjacent(InstancePlacement subsequentPlacement)
+        public bool IsAdjacent(Placement subsequentPlacement)
         {
             Debug.Assert(this.To <= subsequentPlacement.To);
             Debug.Assert(this.From <= subsequentPlacement.From);
@@ -119,10 +119,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
             }
         }
 
-        public InstancePlacement Merge(InstancePlacement subsequentPlacement)
+        public Placement Merge(Placement subsequentPlacement)
         {
             Debug.Assert(IsAdjacent(subsequentPlacement));
-            return new InstancePlacement(
+            return new Placement(
                 MergeTenancy(this.Tenancy, subsequentPlacement.Tenancy),
                 this.ServerId ?? subsequentPlacement.ServerId,
                 this.NodeType ?? subsequentPlacement.NodeType,

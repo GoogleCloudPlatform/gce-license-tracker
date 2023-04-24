@@ -32,7 +32,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public InstanceLocator? Reference { get; }
 
-        public IEnumerable<InstancePlacement> Placements { get; }
+        public IEnumerable<Placement> Placements { get; }
 
         public IImageLocator? Image { get; }
 
@@ -43,7 +43,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             InstanceLocator? reference,
             InstanceHistoryState state,
             IImageLocator? image,
-            IEnumerable<InstancePlacement> placements)
+            IEnumerable<Placement> placements)
         {
             this.InstanceId = instanceId;
             this.Reference = reference;
