@@ -34,13 +34,13 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public IEnumerable<PlacementHistory> PlacementHistories { get; }
 
-        public IEnumerable<ConfigurationHistory<MachineTypeLocator>> MachineTypeHistories { get; }
+        public IDictionary<ulong, ConfigurationHistory<MachineTypeLocator>> MachineTypeHistories { get; }
 
         internal InstanceSetHistory(
             DateTime startDate,
             DateTime endDate,
             IEnumerable<PlacementHistory> instances,
-            IEnumerable<ConfigurationHistory<MachineTypeLocator>> machineTypeHistories)
+            IDictionary<ulong, ConfigurationHistory<MachineTypeLocator>> machineTypeHistories)
         {
             this.StartDate = startDate;
             this.EndDate = endDate;

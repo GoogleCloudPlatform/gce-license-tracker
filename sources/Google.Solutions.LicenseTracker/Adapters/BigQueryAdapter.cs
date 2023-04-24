@@ -177,6 +177,7 @@ namespace Google.Solutions.LicenseTracker.Adapters
             Table? existingView;
             try
             {
+                
                 existingView = await this.service
                     .Tables
                     .Get(view.ProjectId, view.Dataset.Name, view.Name)

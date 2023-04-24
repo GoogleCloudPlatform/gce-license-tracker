@@ -201,7 +201,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     .ToList(),
                 this.instanceBuilders.Values
                     .Select(b => b.BuildMachineTypeHistory())
-                    .ToList());
+                    .ToDictionary(h => h.InstanceId, h => h));
         }
 
         //---------------------------------------------------------------------
