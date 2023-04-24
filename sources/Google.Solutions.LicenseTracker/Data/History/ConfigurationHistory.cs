@@ -58,11 +58,17 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public TConfigurationItem? GetHistoricValue(DateTime dateTime)
         {
-            return this.changes
-                .Where(c => c.ChangeDate <= dateTime)
-                .FirstOrDefault()?
-                .NewValue 
-                ?? this.currentValue;
+            if (!this.changes.Any())
+            {
+                return this.currentValue;
+            }
+            else
+            {
+                return this.changes
+                    .Where(c => c.ChangeDate <= dateTime)
+                    .FirstOrDefault()?
+                    .NewValue;
+            }
         }
     }
 

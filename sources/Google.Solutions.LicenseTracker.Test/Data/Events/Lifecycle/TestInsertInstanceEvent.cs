@@ -177,6 +177,9 @@ namespace Google.Solutions.LicenseTracker.Data.Test.Events.Lifecycle
             Assert.AreEqual(
                 new ImageLocator("project-1", "image-1"),
                 e.Image);
+            Assert.AreEqual(
+                new MachineTypeLocator("project-1", "us-central1-a", "n1-standard-4"),
+                e.MachineType);
         }
 
         [Test]
@@ -239,6 +242,7 @@ namespace Google.Solutions.LicenseTracker.Data.Test.Events.Lifecycle
                 new InstanceLocator("project-1", "us-central1-a", "instance-1"),
                 e.InstanceReference);
             Assert.IsNull(e.Image);
+            Assert.IsNull(e.MachineType);
         }
 
         [Test]

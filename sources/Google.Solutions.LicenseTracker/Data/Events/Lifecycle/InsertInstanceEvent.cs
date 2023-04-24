@@ -32,6 +32,7 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
         public const string BetaMethod = "beta.compute.instances.insert";
 
         public IImageLocator? Image { get; }
+        public MachineTypeLocator? MachineType { get; }
 
         internal InsertInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
@@ -73,6 +74,12 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
                             }
                         }
                     }
+                }
+
+                if (request.Value<string>("machineType") is var machineType &&
+                    !string.IsNullOrEmpty(machineType))
+                {
+                    this.MachineType = MachineTypeLocator.FromString(machineType);
                 }
             }
         }
