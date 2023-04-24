@@ -200,19 +200,30 @@ namespace Google.Solutions.LicenseTracker.Data.History
         // IEventProcessor
         //---------------------------------------------------------------------
 
-        public EventOrder ExpectedOrder => PlacementHistoryBuilder.ProcessingOrder;
+        //
+        // NB. Error events are not relevant for building the history, we only need
+        // informational records.
+        //
+        internal static EventOrder ProcessingOrder = EventOrder.NewestFirst;
+        internal static IEnumerable<string> ProcessingSeverities => new[] { "NOTICE", "INFO" };
+        internal static IEnumerable<string> ProcessingMethods => EventFactory.EventMethods;
 
-        public IEnumerable<string> SupportedSeverities => PlacementHistoryBuilder.ProcessingSeverities;
 
-        public IEnumerable<string> SupportedMethods => PlacementHistoryBuilder.ProcessingMethods;
+        public EventOrder ExpectedOrder => ProcessingOrder;
+
+        public IEnumerable<string> SupportedSeverities => ProcessingSeverities;
+
+        public IEnumerable<string> SupportedMethods => ProcessingMethods;
 
         public void Process(EventBase e)
         {
+            //
             // NB. Some events (such as recreateInstance) might not have an instance ID.
             // These are useless for our purpose.
+            //
             if (e is InstanceEventBase instanceEvent && instanceEvent.InstanceId != 0)
             {
-                GetInstanceHistoryBuilder(instanceEvent.InstanceId).Process(e);
+                GetInstanceHistoryBuilder(instanceEvent.InstanceId).ProcessEvent(e);
             }
         }
     }

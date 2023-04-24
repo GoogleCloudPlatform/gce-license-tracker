@@ -40,14 +40,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
         private readonly List<ConfigurationChange<TConfigurationItem>> changes;
 
         public ConfigurationHistory(
-            ulong instanceId,
             IEnumerable<ConfigurationChange<TConfigurationItem>> changes)
         {
-            this.InstanceId = instanceId;
             this.changes = changes.OrderByDescending(c => c.ChangeDate).ToList();
         }
-
-        public ulong InstanceId { get; }
 
         public TConfigurationItem? GetHistoricValue(DateTime dateTime)
         {

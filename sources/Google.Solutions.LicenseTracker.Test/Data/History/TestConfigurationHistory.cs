@@ -37,7 +37,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         public void WhenHistoryEmpty_ThenGetHistoricValueReturnsNull()
         {
             var history = new ConfigurationHistory<MachineTypeLocator>(
-                1,
                 Enumerable.Empty<ConfigurationChange<MachineTypeLocator>>());
 
             Assert.IsNull(history.GetHistoricValue(DateTime.UtcNow));
@@ -59,7 +58,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                     new MachineTypeLocator("project-1", "zone-1", "type-3")),
             };
 
-            var history = new ConfigurationHistory<MachineTypeLocator>(1, changes);
+            var history = new ConfigurationHistory<MachineTypeLocator>(changes);
 
             Assert.IsNull(history.GetHistoricValue(new DateTime(2021, 12, 31, 23, 59, 59, DateTimeKind.Utc)));
         }
@@ -80,7 +79,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                     new MachineTypeLocator("project-1", "zone-1", "type-3")),
             };
 
-            var history = new ConfigurationHistory<MachineTypeLocator>(1, changes);
+            var history = new ConfigurationHistory<MachineTypeLocator>(changes);
 
             Assert.AreEqual(
                 new MachineTypeLocator("project-1", "zone-1", "type-1"),

@@ -33,21 +33,13 @@ namespace Google.Solutions.LicenseTracker.Data.History
     /// Reconstructs the placement history of an instance by analyzing
     /// events in reverse chronological order.
     /// </summary>
-    internal class PlacementHistoryBuilder : IEventProcessor
+    internal class PlacementHistoryBuilder
     {
         //
         // NB. Instance IDs stay unique throughout the history while VmInstanceReferences
         // become ambiguous. Therefore, it is important to use instance ID as primary
         // key, even though the reference is more user-friendly and meaningful.
         //
-
-        //
-        // Error events are not relevant for building the history, we only need
-        // informational records.
-        //
-        internal static EventOrder ProcessingOrder = EventOrder.NewestFirst;
-        internal static IEnumerable<string> ProcessingSeverities => new[] { "NOTICE", "INFO" };
-        internal static IEnumerable<string> ProcessingMethods => EventFactory.EventMethods;
 
         private readonly ILogger logger;
 
@@ -376,17 +368,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             AddPlacement(Tenancies.SoleTenant, serverId, nodeType, date);
         }
 
-        //---------------------------------------------------------------------
-        // IEventProcessor
-        //---------------------------------------------------------------------
-
-        public EventOrder ExpectedOrder => ProcessingOrder;
-
-        public IEnumerable<string> SupportedSeverities => ProcessingSeverities;
-
-        public IEnumerable<string> SupportedMethods => ProcessingMethods;
-
-        public void Process(EventBase e)
+        public void ProcessEvent(EventBase e)
         {
             if (e is NotifyInstanceLocationEvent notifyLocation && notifyLocation.ServerId != null)
             {
@@ -409,6 +391,12 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 {
                     OnStop(e.Timestamp, ((InstanceEventBase)e).InstanceReference!);
                 }
+            }
+            else
+            {
+                //
+                // This event is not relevant for us.
+                //
             }
         }
     }
