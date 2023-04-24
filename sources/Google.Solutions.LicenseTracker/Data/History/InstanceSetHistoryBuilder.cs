@@ -141,7 +141,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     image = ImageLocator.FromString(imageUrl);
                 }
 
-
                 if (instance.Scheduling.NodeAffinities != null && instance.Scheduling.NodeAffinities.Any())
                 {
                     // This VM runs on a sole-tenant node.
@@ -204,16 +203,12 @@ namespace Google.Solutions.LicenseTracker.Data.History
         // NB. Error events are not relevant for building the history, we only need
         // informational records.
         //
-        internal static EventOrder ProcessingOrder = EventOrder.NewestFirst;
-        internal static IEnumerable<string> ProcessingSeverities => new[] { "NOTICE", "INFO" };
-        internal static IEnumerable<string> ProcessingMethods => EventFactory.EventMethods;
 
+        public EventOrder ExpectedOrder => EventOrder.NewestFirst;
 
-        public EventOrder ExpectedOrder => ProcessingOrder;
+        public IEnumerable<string> SupportedSeverities => new[] { "NOTICE", "INFO" };
 
-        public IEnumerable<string> SupportedSeverities => ProcessingSeverities;
-
-        public IEnumerable<string> SupportedMethods => ProcessingMethods;
+        public IEnumerable<string> SupportedMethods => EventFactory.EventMethods;
 
         public void Process(EventBase e)
         {
