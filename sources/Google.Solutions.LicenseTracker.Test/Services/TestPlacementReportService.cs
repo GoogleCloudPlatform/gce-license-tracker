@@ -55,7 +55,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         }
 
         [Test]
-        public void WhenStarDateEscapesAnalysisWindow_ThenCreateReportThrowsException()
+        public void WhenStartDateEscapesAnalysisWindow_ThenCreateReportThrowsException()
         {
             var service = new PlacementReportService(
                 new Mock<IInstanceHistoryService>().Object,

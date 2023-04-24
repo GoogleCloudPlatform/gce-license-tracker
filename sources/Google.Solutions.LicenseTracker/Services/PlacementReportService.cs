@@ -161,7 +161,10 @@ namespace Google.Solutions.LicenseTracker.Services
                     Image = i.Image,
                     Placement = p,
                     License = i.Image != null ? licenses?.TryGet(i.Image) : null,
-                    MachineType = instanceSetHistory?.MachineTypeHistories[i.InstanceId].GetHistoricValue(p.From)
+                    MachineType = instanceSetHistory?
+                        .MachineTypeHistories
+                        .TryGet(i.InstanceId)?
+                        .GetHistoricValue(p.From)
                 };
             }
         }

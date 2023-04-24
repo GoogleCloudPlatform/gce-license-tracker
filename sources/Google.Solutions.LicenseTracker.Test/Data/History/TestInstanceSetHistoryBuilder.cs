@@ -95,7 +95,10 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             var set = b.Build();
 
             Assert.AreEqual(1, set.PlacementHistories.Count());
+            Assert.AreEqual(1, set.MachineTypeHistories.Count());
+
             Assert.AreEqual(1, set.PlacementHistories.First().InstanceId);
+            Assert.AreEqual(1, set.MachineTypeHistories.First().Value.InstanceId);
         }
 
         [Test]
