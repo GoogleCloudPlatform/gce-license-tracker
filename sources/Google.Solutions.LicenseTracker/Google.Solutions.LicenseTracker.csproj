@@ -51,8 +51,4 @@
     </Compile>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\Events\Config\" />
-  </ItemGroup>
-
 </Project>

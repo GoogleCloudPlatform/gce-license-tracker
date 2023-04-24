@@ -84,7 +84,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
                  record.ProtoPayload?.MethodName == BetaMethod);
         }
 
-
         //---------------------------------------------------------------------
         // IInstanceStateChangeEvent.
         //---------------------------------------------------------------------

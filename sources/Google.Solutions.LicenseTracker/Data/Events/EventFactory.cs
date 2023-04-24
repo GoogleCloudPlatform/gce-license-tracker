@@ -19,6 +19,7 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.Events.Lifecycle;
 using Google.Solutions.LicenseTracker.Data.Events.System;
 using Google.Solutions.LicenseTracker.Data.Logs;
@@ -47,6 +48,7 @@ namespace Google.Solutions.LicenseTracker.Data.Events
                 { ResumeInstanceEvent.Method, rec => new ResumeInstanceEvent(rec) },
                 { ResumeInstanceEvent.BetaMethod, rec => new ResumeInstanceEvent(rec) },
                 { ResumeInstanceEvent.AlphaMethod, rec => new ResumeInstanceEvent(rec) },
+                { SetMachineTypeEvent.Method, rec => new SetMachineTypeEvent(rec) },
                 
                 // Some lifecyce-related beta events omitted (based on audit_log_services.ts),
             };
