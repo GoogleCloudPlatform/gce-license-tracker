@@ -31,25 +31,27 @@ namespace Google.Solutions.LicenseTracker.Data.History
     public class InstanceSetHistoryBuilder : IEventProcessor
     {
         private readonly ILogger logger;
-        private readonly IDictionary<ulong, PlacementHistoryBuilder> instanceBuilders =
-            new Dictionary<ulong, PlacementHistoryBuilder>();
+        private readonly IDictionary<ulong, InstanceHistoryBuilder> instanceBuilders =
+            new Dictionary<ulong, InstanceHistoryBuilder>();
 
         public DateTime StartDate { get; }
         public DateTime EndDate { get; }
 
         private static string ShortZoneIdFromUrl(string url) => url.Substring(url.LastIndexOf("/") + 1);
 
-        internal PlacementHistoryBuilder GetInstanceHistoryBuilder(ulong instanceId)
+        internal InstanceHistoryBuilder GetInstanceHistoryBuilder(ulong instanceId)
         {
-            if (this.instanceBuilders.TryGetValue(instanceId, out PlacementHistoryBuilder? builder))
+            if (this.instanceBuilders.TryGetValue(instanceId, out InstanceHistoryBuilder? builder))
             {
                 return builder;
             }
             else
             {
-                var newBuilder = PlacementHistoryBuilder.ForDeletedInstance(
-                    instanceId,
-                    this.logger);
+                var newBuilder = new InstanceHistoryBuilder(
+                    PlacementHistoryBuilder.ForDeletedInstance(
+                        instanceId,
+                        this.logger),
+                    new MachineTypeConfigurationHistoryBuilder(instanceId));
                 this.instanceBuilders[instanceId] = newBuilder;
                 return newBuilder;
             }
@@ -87,16 +89,18 @@ namespace Google.Solutions.LicenseTracker.Data.History
             NodeTypeLocator? nodeType)
         {
             Debug.Assert(!tenancy.IsFlagCombination());
-            this.instanceBuilders[instanceId] = PlacementHistoryBuilder.ForExistingInstance(
-                instanceId,
-                reference,
-                image,
-                state,
-                lastSeen,
-                tenancy,
-                serverId,
-                nodeType,
-                this.logger);
+            this.instanceBuilders[instanceId] = new InstanceHistoryBuilder(
+                PlacementHistoryBuilder.ForExistingInstance(
+                    instanceId,
+                    reference,
+                    image,
+                    state,
+                    lastSeen,
+                    tenancy,
+                    serverId,
+                    nodeType,
+                    this.logger),
+                new MachineTypeConfigurationHistoryBuilder(instanceId));
         }
 
         public void AddExistingInstances(
@@ -192,7 +196,12 @@ namespace Google.Solutions.LicenseTracker.Data.History
             return new InstanceSetHistory(
                 this.StartDate,
                 this.EndDate,
-                this.instanceBuilders.Values.Select(b => b.Build(this.StartDate)).ToList());
+                this.instanceBuilders.Values
+                    .Select(b => b.BuildPlacementHistory(this.StartDate))
+                    .ToList(),
+                this.instanceBuilders.Values
+                    .Select(b => b.BuildMachineTypeHistory())
+                    .ToList());
         }
 
         //---------------------------------------------------------------------

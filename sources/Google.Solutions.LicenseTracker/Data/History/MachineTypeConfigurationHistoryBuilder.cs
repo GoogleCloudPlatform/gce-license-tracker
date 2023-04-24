@@ -18,10 +18,18 @@ namespace Google.Solutions.LicenseTracker.Data.History
     {
         private LinkedList<ConfigurationChange<MachineTypeLocator>> changes =
             new LinkedList<ConfigurationChange<MachineTypeLocator>>();
+        public ulong InstanceId { get; }
+
+        public MachineTypeConfigurationHistoryBuilder(ulong instanceId)
+        {
+            this.InstanceId = instanceId;
+        }
 
         public ConfigurationHistory<MachineTypeLocator> Build()
         {
-            return new ConfigurationHistory<MachineTypeLocator>(this.changes);
+            return new ConfigurationHistory<MachineTypeLocator>(
+                this.InstanceId,
+                this.changes);
         }
 
         public void ProcessEvent(EventBase e)

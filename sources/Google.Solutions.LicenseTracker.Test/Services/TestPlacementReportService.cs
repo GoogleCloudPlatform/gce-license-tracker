@@ -100,7 +100,8 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                         new []
                         {
                             new Placement(endDate.AddDays(-1), endDate)
-                        }) }));
+                        }) },
+                    Enumerable.Empty<ConfigurationHistory<MachineTypeLocator>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -148,7 +149,8 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                         new []
                         {
                             new Placement(endDate.AddDays(-1), endDate) // till end
-                        }) }));
+                        }) },
+                    Enumerable.Empty<ConfigurationHistory<MachineTypeLocator>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -195,7 +197,8 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                         new []
                         {
                             new Placement(endDate.AddDays(-2), endDate.AddDays(-1))
-                        }) }));
+                        }) },
+                    Enumerable.Empty<ConfigurationHistory<MachineTypeLocator>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
