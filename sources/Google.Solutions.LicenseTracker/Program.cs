@@ -192,14 +192,15 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.StartedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u}: {5}/{6}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}",
                         placement.InstanceId,
                         placement.Instance?.Name,
                         placement.Placement.ServerId,
                         placement.Placement.NodeType?.Name ?? "-",
                         placement.Placement.From,
                         placement.License?.OperatingSystem,
-                        placement.License?.LicenseType);
+                        placement.License?.LicenseType,
+                        placement.MachineType?.Name);
                 }
 
 
@@ -210,14 +211,15 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.EndedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u}: {5}/{6}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}",
                         placement.InstanceId,
                         placement.Instance?.Name,
                         placement.Placement.ServerId,
                         placement.Placement.NodeType?.Name ?? "-",
                         placement.Placement.To,
                         placement.License?.OperatingSystem,
-                        placement.License?.LicenseType);
+                        placement.License?.LicenseType,
+                        placement.MachineType?.Name);
                 }
             }
         }

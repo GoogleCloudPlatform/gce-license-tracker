@@ -142,29 +142,28 @@ namespace Google.Solutions.LicenseTracker.Services
                     .PlacementHistories
                     .SelectMany(i => i.Placements
                         .Where(p => p.From >= startDateInclusive)
-                        .Select(p => new PlacementEvent()
-                        {
-                            Instance = i.Reference,
-                            InstanceId = i.InstanceId,
-                            Image = i.Image,
-                            Placement = p,
-                            License = i.Image != null ? licenses.TryGet(i.Image) : null
-                        }))
+                        .Select(p => CreatePlacementEvent(i, p)))
                     .ToList(),
                 EndedPlacements = instanceSetHistory
                     .PlacementHistories
                     .SelectMany(i => i.Placements
                         .Where(p => p.To < endDateExclusive)
-                        .Select(p => new PlacementEvent()
-                        {
-                            Instance = i.Reference,
-                            InstanceId = i.InstanceId,
-                            Image = i.Image,
-                            Placement = p,
-                            License = i.Image != null ? licenses.TryGet(i.Image) : null
-                        }))
+                        .Select(p => CreatePlacementEvent(i, p)))
                     .ToList()
             };
+
+            PlacementEvent CreatePlacementEvent(PlacementHistory i, Placement p)
+            {
+                return new PlacementEvent()
+                {
+                    Instance = i.Reference,
+                    InstanceId = i.InstanceId,
+                    Image = i.Image,
+                    Placement = p,
+                    License = i.Image != null ? licenses?.TryGet(i.Image) : null,
+                    MachineType = instanceSetHistory?.MachineTypeHistories[i.InstanceId].GetHistoricValue(p.From)
+                };
+            }
         }
     }
 
@@ -218,5 +217,10 @@ namespace Google.Solutions.LicenseTracker.Services
         /// License of boot disk, if known.
         /// </summary>
         public LicenseInfo? License { get; init; }
+
+        /// <summary>
+        /// Machine type, if known.
+        /// </summary>
+        public MachineTypeLocator? MachineType { get; init; }
     }
 }
