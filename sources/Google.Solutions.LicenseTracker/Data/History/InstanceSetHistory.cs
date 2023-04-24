@@ -30,16 +30,16 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public DateTime EndDate { get; }
 
-        public IEnumerable<InstanceHistory> Instances { get; }
+        public IEnumerable<PlacementHistory> PlacementHistories { get; }
 
         internal InstanceSetHistory(
             DateTime startDate,
             DateTime endDate,
-            IEnumerable<InstanceHistory> instances)
+            IEnumerable<PlacementHistory> instances)
         {
             this.StartDate = startDate;
             this.EndDate = endDate;
-            this.Instances = instances;
+            this.PlacementHistories = instances;
         }
     }
 }

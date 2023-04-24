@@ -30,10 +30,10 @@ using System.Diagnostics;
 namespace Google.Solutions.LicenseTracker.Data.History
 {
     /// <summary>
-    /// Reconstructs the history of an instance by analyzing
+    /// Reconstructs the placement history of an instance by analyzing
     /// events in reverse chronological order.
     /// </summary>
-    internal class InstanceHistoryBuilder : IEventProcessor
+    internal class PlacementHistoryBuilder : IEventProcessor
     {
         //
         // NB. Instance IDs stay unique throughout the history while VmInstanceReferences
@@ -153,7 +153,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
         // Ctor
         //---------------------------------------------------------------------
 
-        private InstanceHistoryBuilder(
+        private PlacementHistoryBuilder(
             ulong instanceId,
             InstanceLocator? reference,
             ImageLocator? image,
@@ -192,7 +192,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             }
         }
 
-        internal static InstanceHistoryBuilder ForExistingInstance(
+        internal static PlacementHistoryBuilder ForExistingInstance(
             ulong instanceId,
             InstanceLocator reference,
             ImageLocator? image,
@@ -206,7 +206,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             Debug.Assert(!tenancy.IsFlagCombination());
             Debug.Assert(state != InstanceState.Deleted);
 
-            return new InstanceHistoryBuilder(
+            return new PlacementHistoryBuilder(
                 instanceId,
                 reference,
                 image,
@@ -218,11 +218,11 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 logger);
         }
 
-        internal static InstanceHistoryBuilder ForDeletedInstance(
+        internal static PlacementHistoryBuilder ForDeletedInstance(
             ulong instanceId,
             ILogger logger)
         {
-            return new InstanceHistoryBuilder(
+            return new PlacementHistoryBuilder(
                 instanceId,
                 null,
                 null,
@@ -234,7 +234,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 logger);
         }
 
-        public InstanceHistory Build(DateTime reportStartDate)
+        public PlacementHistory Build(DateTime reportStartDate)
         {
             IEnumerable<InstancePlacement> sanitizedPlacements = this.placements;
 
@@ -266,7 +266,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
             Debug.Assert(sanitizedPlacements.All(p => p.From != p.To));
 
-            return new InstanceHistory(
+            return new PlacementHistory(
                 this.InstanceId,
                 this.reference,
                 this.State,

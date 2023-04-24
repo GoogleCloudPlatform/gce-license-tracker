@@ -29,7 +29,7 @@ using Moq;
 namespace Google.Solutions.LicenseTracker.Test.Data.History
 {
     [TestFixture]
-    public class TestInstanceHistoryBuilder 
+    public class TestPlacementHistoryBuilder 
     {
         private static readonly InstanceLocator SampleReference = new InstanceLocator("pro", "zone", "name");
         private static readonly ImageLocator SampleImage
@@ -42,7 +42,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceIsDeletedAndNoEventsRegistered_ThenImageIsNull()
         {
-            var b = InstanceHistoryBuilder.ForDeletedInstance(1, this.logger);
+            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
             var i = b.Build(new DateTime(2019, 12, 1, 0, 0, 0, DateTimeKind.Utc));
 
             Assert.AreEqual(1, i.InstanceId);
@@ -57,7 +57,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenRedundantPlacementsRegistered_ThenSecondPlacementIsIgnored()
         {
-            var b = InstanceHistoryBuilder.ForExistingInstance(
+            var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
                 SampleImage,
@@ -81,7 +81,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenPlacementsWithSameServerIdAfterStopRegistered_ThenPlacementsAreKept()
         {
-            var b = InstanceHistoryBuilder.ForExistingInstance(
+            var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
                 SampleImage,
@@ -107,7 +107,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenPlacementsWithDifferentServerIdsRegistered_ThenPlacementsAreKept()
         {
-            var b = InstanceHistoryBuilder.ForExistingInstance(
+            var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
                 SampleImage,
@@ -135,7 +135,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceRunningAndSinglePlacementRegistered_ThenInstanceContainsRightPlacements()
         {
-            var b = InstanceHistoryBuilder.ForExistingInstance(
+            var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
                 SampleImage,
@@ -161,7 +161,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceRunningAndMultiplePlacementsRegistered_ThenInstanceContainsRightPlacements()
         {
-            var b = InstanceHistoryBuilder.ForExistingInstance(
+            var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
                 SampleImage,
@@ -193,7 +193,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceRunningAndMultiplePlacementWithStopsInBetweenRegistered_ThenInstanceContainsRightPlacements()
         {
-            var b = InstanceHistoryBuilder.ForExistingInstance(
+            var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
                 SampleImage,
@@ -226,7 +226,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         {
             var reportStartDate = new DateTime(2019, 12, 1, 0, 0, 0, DateTimeKind.Utc);
             var lastSeen = new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc);
-            var b = InstanceHistoryBuilder.ForExistingInstance(
+            var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
                 SampleImage,
@@ -255,7 +255,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceDeletedAndSinglePlacementRegistered_ThenInstanceContainsRightPlacements()
         {
-            var b = InstanceHistoryBuilder.ForDeletedInstance(1, this.logger);
+            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
             b.OnStop(new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc), SampleReference);
             b.OnSetPlacement("server-1", null, new DateTime(2019, 12, 30, 0, 0, 0, DateTimeKind.Utc));
 
@@ -274,7 +274,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceDeletedAndMultiplePlacementsRegistered_ThenInstanceContainsRightPlacements()
         {
-            var b = InstanceHistoryBuilder.ForDeletedInstance(1, this.logger);
+            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
             b.OnStop(new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc), SampleReference);
             b.OnSetPlacement("server-2", null, new DateTime(2019, 12, 30, 0, 0, 0, DateTimeKind.Utc));
             b.OnSetPlacement("server-1", null, new DateTime(2019, 12, 29, 0, 0, 0, DateTimeKind.Utc));
@@ -297,7 +297,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceDeletedAndMultiplePlacementWithStopsInBetweenRegistered_ThenInstanceContainsRightPlacements()
         {
-            var b = InstanceHistoryBuilder.ForDeletedInstance(1, this.logger);
+            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
             b.OnStop(new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc), SampleReference);
             b.OnSetPlacement("server-2", null, new DateTime(2019, 12, 30, 0, 0, 0, DateTimeKind.Utc));
             b.OnStop(new DateTime(2019, 12, 29, 0, 0, 0, DateTimeKind.Utc), SampleReference);
@@ -326,7 +326,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceExists_ThenStateIsComplete()
         {
-            var b = InstanceHistoryBuilder.ForExistingInstance(
+            var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
                 SampleImage,
@@ -342,7 +342,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenOnlyPlacementRegistered_ThenStateIsMissingStopEvent()
         {
-            var b = InstanceHistoryBuilder.ForDeletedInstance(1, this.logger);
+            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
             b.OnSetPlacement("server-2", null, new DateTime(2019, 12, 30, 0, 0, 0, DateTimeKind.Utc));
             Assert.AreEqual(InstanceHistoryState.MissingStopEvent, b.State);
         }
@@ -350,14 +350,14 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstancDeletedAndNoPlacementRegistered_ThenStateIsMissingTenancy()
         {
-            var b = InstanceHistoryBuilder.ForDeletedInstance(1, this.logger);
+            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
             Assert.AreEqual(InstanceHistoryState.MissingTenancy, b.State);
         }
 
         [Test]
         public void WhenInstanceDeletedAndPlacementRegisteredButNoInsertRegistered_ThenStateIsMissingImage()
         {
-            var b = InstanceHistoryBuilder.ForDeletedInstance(1, this.logger);
+            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
             b.OnStop(new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc), SampleReference);
             b.OnSetPlacement("server-2", null, new DateTime(2019, 12, 30, 0, 0, 0, DateTimeKind.Utc));
             Assert.AreEqual(InstanceHistoryState.MissingImage, b.State);
@@ -366,7 +366,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceDeletedAndPlacementAndInsertRegistered_ThenStateIsComplete()
         {
-            var b = InstanceHistoryBuilder.ForDeletedInstance(1, this.logger);
+            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
             b.OnStop(new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc), SampleReference);
             b.OnSetPlacement("server-2", null, new DateTime(2019, 12, 30, 0, 0, 0, DateTimeKind.Utc));
             b.OnInsert(new DateTime(2019, 12, 30, 0, 0, 0, DateTimeKind.Utc), SampleReference, SampleImage);
@@ -376,7 +376,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         [Test]
         public void WhenInstanceDeletedAndInsertRegistered_ThenStateIsComplete()
         {
-            var b = InstanceHistoryBuilder.ForDeletedInstance(1, this.logger);
+            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
             b.OnStop(new DateTime(2019, 12, 29, 0, 0, 0, DateTimeKind.Utc), SampleReference);
             b.OnInsert(new DateTime(2019, 12, 29, 0, 0, 0, DateTimeKind.Utc), SampleReference, SampleImage);
             Assert.AreEqual(InstanceHistoryState.Complete, b.State);

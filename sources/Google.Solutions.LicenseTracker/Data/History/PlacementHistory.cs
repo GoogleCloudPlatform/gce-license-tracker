@@ -23,7 +23,10 @@ using Google.Solutions.LicenseTracker.Data.Locator;
 
 namespace Google.Solutions.LicenseTracker.Data.History
 {
-    public class InstanceHistory
+    /// <summary>
+    /// Placement history for a specific VM instance.
+    /// </summary>
+    public class PlacementHistory
     {
         public ulong InstanceId { get; }
 
@@ -35,7 +38,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public InstanceHistoryState State { get; }
 
-        internal InstanceHistory(
+        internal PlacementHistory(
             ulong instanceId,
             InstanceLocator? reference,
             InstanceHistoryState state,

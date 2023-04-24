@@ -92,7 +92,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 .ReturnsAsync(new InstanceSetHistory(
                     startDate,
                     endDate,
-                    new[] { new InstanceHistory(
+                    new[] { new PlacementHistory(
                         1,
                         new InstanceLocator("project-1", "zone-1", "instance-1"),
                         InstanceHistoryState.Complete,
@@ -140,7 +140,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 .ReturnsAsync(new InstanceSetHistory(
                     startDate,
                     endDate,
-                    new[] { new InstanceHistory(
+                    new[] { new PlacementHistory(
                         1,
                         new InstanceLocator("project-1", "zone-1", "instance-1"),
                         InstanceHistoryState.Complete,
@@ -187,7 +187,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 .ReturnsAsync(new InstanceSetHistory(
                     startDate,
                     endDate,
-                    new[] { new InstanceHistory(
+                    new[] { new PlacementHistory(
                         1,
                         new InstanceLocator("project-1", "zone-1", "instance-1"),
                         InstanceHistoryState.Complete,

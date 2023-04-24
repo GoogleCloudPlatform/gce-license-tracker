@@ -93,8 +93,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
 
             var set = b.Build();
 
-            Assert.AreEqual(1, set.Instances.Count());
-            Assert.AreEqual(1, set.Instances.First().InstanceId);
+            Assert.AreEqual(1, set.PlacementHistories.Count());
+            Assert.AreEqual(1, set.PlacementHistories.First().InstanceId);
         }
 
         [Test]
@@ -117,10 +117,10 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
 
             var set = b.Build();
 
-            Assert.AreEqual(1, set.Instances.Count());
-            Assert.AreEqual(1, set.Instances.First().InstanceId);
-            Assert.AreEqual("server-1", set.Instances.First().Placements.First().ServerId);
-            Assert.AreEqual("type-1", set.Instances.First().Placements.First().NodeType?.Name);
+            Assert.AreEqual(1, set.PlacementHistories.Count());
+            Assert.AreEqual(1, set.PlacementHistories.First().InstanceId);
+            Assert.AreEqual("server-1", set.PlacementHistories.First().Placements.First().ServerId);
+            Assert.AreEqual("type-1", set.PlacementHistories.First().Placements.First().NodeType?.Name);
         }
 
         [Test]
@@ -151,9 +151,9 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
 
             var set = b.Build();
 
-            Assert.AreEqual(1, set.Instances.Count());
-            Assert.AreEqual(123, set.Instances.First().InstanceId);
-            Assert.AreEqual(InstanceHistoryState.MissingTenancy, set.Instances.First().State);
+            Assert.AreEqual(1, set.PlacementHistories.Count());
+            Assert.AreEqual(123, set.PlacementHistories.First().InstanceId);
+            Assert.AreEqual(InstanceHistoryState.MissingTenancy, set.PlacementHistories.First().State);
         }
 
         [Test]
@@ -202,8 +202,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
 
             var set = b.Build();
 
-            Assert.AreEqual(1, set.Instances.Count());
-            Assert.AreEqual(123, set.Instances.First().InstanceId);
+            Assert.AreEqual(1, set.PlacementHistories.Count());
+            Assert.AreEqual(123, set.PlacementHistories.First().InstanceId);
         }
 
         [Test]
@@ -211,9 +211,9 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         {
             var set = BuildHistoryFromResource("instance-1.json");
 
-            Assert.AreEqual(1, set.Instances.Count());
+            Assert.AreEqual(1, set.PlacementHistories.Count());
 
-            var instance = set.Instances.First();
+            var instance = set.PlacementHistories.First();
             Assert.AreEqual(
                 ImageLocator.FromString("projects/windows-cloud/global/images/windows-server"),
                 instance.Image);
@@ -234,9 +234,9 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         public void WhenReadingSample2_ThenHistoryIsRestored()
         {
             var set = BuildHistoryFromResource("instance-2.json");
-            Assert.AreEqual(1, set.Instances.Count());
+            Assert.AreEqual(1, set.PlacementHistories.Count());
 
-            var instance = set.Instances.First();
+            var instance = set.PlacementHistories.First();
             Assert.AreEqual(
                 ImageLocator.FromString("projects/windows-cloud/global/images/windows-server"),
                 instance.Image);
@@ -257,9 +257,9 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         public void WhenReadingSample3_ThenHistoryIsRestored()
         {
             var set = BuildHistoryFromResource("instance-3.json");
-            Assert.AreEqual(1, set.Instances.Count());
+            Assert.AreEqual(1, set.PlacementHistories.Count());
 
-            var instance = set.Instances.First();
+            var instance = set.PlacementHistories.First();
             Assert.AreEqual(
                 ImageLocator.FromString("projects/project-1/global/images/windows-server"),
                 instance.Image);
@@ -291,9 +291,9 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         public void WhenReadingSample4_ThenHistoryIsRestoredWithMixedTenancy()
         {
             var set = BuildHistoryFromResource("instance-4.json");
-            Assert.AreEqual(1, set.Instances.Count());
+            Assert.AreEqual(1, set.PlacementHistories.Count());
 
-            var instance = set.Instances.First();
+            var instance = set.PlacementHistories.First();
             Assert.AreEqual(2, instance.Placements.Count());
 
             var firstPlacement = instance.Placements.First();

@@ -31,23 +31,23 @@ namespace Google.Solutions.LicenseTracker.Data.History
     public class InstanceSetHistoryBuilder : IEventProcessor
     {
         private readonly ILogger logger;
-        private readonly IDictionary<ulong, InstanceHistoryBuilder> instanceBuilders =
-            new Dictionary<ulong, InstanceHistoryBuilder>();
+        private readonly IDictionary<ulong, PlacementHistoryBuilder> instanceBuilders =
+            new Dictionary<ulong, PlacementHistoryBuilder>();
 
         public DateTime StartDate { get; }
         public DateTime EndDate { get; }
 
         private static string ShortZoneIdFromUrl(string url) => url.Substring(url.LastIndexOf("/") + 1);
 
-        internal InstanceHistoryBuilder GetInstanceHistoryBuilder(ulong instanceId)
+        internal PlacementHistoryBuilder GetInstanceHistoryBuilder(ulong instanceId)
         {
-            if (this.instanceBuilders.TryGetValue(instanceId, out InstanceHistoryBuilder? builder))
+            if (this.instanceBuilders.TryGetValue(instanceId, out PlacementHistoryBuilder? builder))
             {
                 return builder;
             }
             else
             {
-                var newBuilder = InstanceHistoryBuilder.ForDeletedInstance(
+                var newBuilder = PlacementHistoryBuilder.ForDeletedInstance(
                     instanceId,
                     this.logger);
                 this.instanceBuilders[instanceId] = newBuilder;
@@ -87,7 +87,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             NodeTypeLocator? nodeType)
         {
             Debug.Assert(!tenancy.IsFlagCombination());
-            this.instanceBuilders[instanceId] = InstanceHistoryBuilder.ForExistingInstance(
+            this.instanceBuilders[instanceId] = PlacementHistoryBuilder.ForExistingInstance(
                 instanceId,
                 reference,
                 image,
@@ -200,11 +200,11 @@ namespace Google.Solutions.LicenseTracker.Data.History
         // IEventProcessor
         //---------------------------------------------------------------------
 
-        public EventOrder ExpectedOrder => InstanceHistoryBuilder.ProcessingOrder;
+        public EventOrder ExpectedOrder => PlacementHistoryBuilder.ProcessingOrder;
 
-        public IEnumerable<string> SupportedSeverities => InstanceHistoryBuilder.ProcessingSeverities;
+        public IEnumerable<string> SupportedSeverities => PlacementHistoryBuilder.ProcessingSeverities;
 
-        public IEnumerable<string> SupportedMethods => InstanceHistoryBuilder.ProcessingMethods;
+        public IEnumerable<string> SupportedMethods => PlacementHistoryBuilder.ProcessingMethods;
 
         public void Process(EventBase e)
         {

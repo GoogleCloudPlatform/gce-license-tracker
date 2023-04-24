@@ -130,7 +130,7 @@ namespace Google.Solutions.LicenseTracker.Services
             // Find out which licenses were used.
             //
             var licenses = await this.licenseService.LookupLicenseInfoAsync(
-                    instanceSetHistory.Instances
+                    instanceSetHistory.PlacementHistories
                         .Where(i => i.Image != null)
                         .Select(i => i.Image!),
                     cancellationToken)
@@ -139,7 +139,7 @@ namespace Google.Solutions.LicenseTracker.Services
             return new PlacementReport()
             {
                 StartedPlacements = instanceSetHistory
-                    .Instances
+                    .PlacementHistories
                     .SelectMany(i => i.Placements
                         .Where(p => p.From >= startDateInclusive)
                         .Select(p => new PlacementEvent()
@@ -152,7 +152,7 @@ namespace Google.Solutions.LicenseTracker.Services
                         }))
                     .ToList(),
                 EndedPlacements = instanceSetHistory
-                    .Instances
+                    .PlacementHistories
                     .SelectMany(i => i.Placements
                         .Where(p => p.To < endDateExclusive)
                         .Select(p => new PlacementEvent()
