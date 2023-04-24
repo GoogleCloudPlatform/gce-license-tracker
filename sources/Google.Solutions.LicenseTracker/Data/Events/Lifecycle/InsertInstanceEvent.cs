@@ -19,6 +19,7 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Data.Logs;
 using Newtonsoft.Json.Linq;
@@ -33,6 +34,8 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
 
         public IImageLocator? Image { get; }
         public MachineTypeLocator? MachineType { get; }
+
+        public SchedulingPolicy? SchedulingPolicy { get; }
 
         internal InsertInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
@@ -80,6 +83,15 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
                     !string.IsNullOrEmpty(machineType))
                 {
                     this.MachineType = MachineTypeLocator.FromString(machineType);
+                }
+
+
+                if (request?["scheduling"] is var schedulingPolicy &&
+                    schedulingPolicy != null)
+                {
+                    this.SchedulingPolicy = new SchedulingPolicy(
+                        schedulingPolicy.Value<string>("onHostMaintenance") ?? "TERMINATE",
+                        schedulingPolicy.Value<uint?>("minNodeCpus"));
                 }
             }
         }

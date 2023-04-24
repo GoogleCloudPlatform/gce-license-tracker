@@ -118,21 +118,6 @@ namespace Google.Solutions.LicenseTracker.Data.Test.Events.Lifecycle
                    '@type': 'type.googleapis.com/compute.instances.insert'
                  },
                  'response': {
-                   'id': '5042353291971988238',
-                   'name': 'operation-1588508129141-5a4bd5ec2a16d-418ba83e-11fc353d',
-                   'zone': 'https://www.googleapis.com/compute/v1/projects/project-1/zones/us-central1-a',
-                   'clientOperationId': '4a68f20d-9f80-32f3-adc4-acf842d7ae0b',
-                   'operationType': 'insert',
-                   'targetLink': 'https://www.googleapis.com/compute/v1/projects/project-1/zones/us-central1-a/instances/instance-group-1-xbtt',
-                   'targetId': '518436304627895054',
-                   'status': 'RUNNING',
-                   'user': '111@cloudservices.gserviceaccount.com',
-                   'progress': '0',
-                   'insertTime': '2020-05-03T05:15:29.813-07:00',
-                   'startTime': '2020-05-03T05:15:29.817-07:00',
-                   'selfLink': 'https://www.googleapis.com/compute/v1/projects/project-1/zones/us-central1-a/operations/operation-1588508129141-5a4bd5ec2a16d-418ba83e-11fc353d',
-                   'selfLinkWithId': 'https://www.googleapis.com/compute/v1/projects/project-1/zones/us-central1-a/operations/5042353291971988238',
-                   '@type': 'type.googleapis.com/operation'
                  },
                  'resourceLocation': {
                    'currentLocations': [
@@ -180,6 +165,120 @@ namespace Google.Solutions.LicenseTracker.Data.Test.Events.Lifecycle
             Assert.AreEqual(
                 new MachineTypeLocator("project-1", "us-central1-a", "n1-standard-4"),
                 e.MachineType);
+            Assert.AreEqual(
+                "TERMINATE",
+                e.SchedulingPolicy?.MaintenancePolicy);
+            Assert.IsNull(e.SchedulingPolicy?.MinNodeCpus);
+        }
+
+        [Test]
+        public void WhenInstanceUsesCpuOvercommit_ThenSchedulingPolicyIsSet()
+        {
+            var json = @"
+                {
+                  'protoPayload': {
+                    '@type': 'type.googleapis.com/google.cloud.audit.AuditLog',
+                    'authenticationInfo': {
+                    },
+                    'requestMetadata': {
+                    },
+                    'serviceName': 'compute.googleapis.com',
+                    'methodName': 'beta.compute.instances.insert',
+                    'authorizationInfo': [
+                    ],
+                    'resourceName': 'projects/project-1/zones/asia-southeast1-b/instances/instance-1',
+                    'request': {
+                      'name': 'instance-1',
+                      'description': '',
+                      'machineType': 'projects/project-1/zones/asia-southeast1-b/machineTypes/n1-standard-8',
+                      'canIpForward': false,
+                      'networkInterfaces': [
+                        {
+                          'subnetwork': 'projects/project-1/regions/asia-southeast1/subnetworks/asia-southeast1',
+                          'stackType': 'IPV4_ONLY'
+                        }
+                      ],
+                      'disks': [
+                        {
+                          'type': 'PERSISTENT',
+                          'mode': 'READ_WRITE',
+                          'deviceName': 'debian-1',
+                          'boot': true,
+                          'initializeParams': {
+                            'sourceImage': 'projects/debian-cloud/global/images/debian-11-bullseye-v20230206',
+                            'diskSizeGb': '10',
+                            'diskType': 'projects/project-1/zones/asia-southeast1-b/diskTypes/pd-standard'
+                          },
+                          'autoDelete': true
+                        }
+                      ],
+                      'scheduling': {
+                        'onHostMaintenance': 'TERMINATE',
+                        'automaticRestart': true,
+                        'nodeAffinitys': [
+                          {
+                            'key': 'compute.googleapis.com/node-group-name',
+                            'operator': 'IN',
+                            'values': [
+                              'n1-overcommit'
+                            ]
+                          }
+                        ],
+                        'minNodeCpus': '4',
+                        'provisioningModel': 'STANDARD'
+                      },
+                      'deletionProtection': false,
+                      'displayDevice': {
+                        'enableDisplay': false
+                      },
+                      'shieldedInstanceConfig': {
+                        'enableSecureBoot': false,
+                        'enableVtpm': true,
+                        'enableIntegrityMonitoring': true
+                      },
+                      'confidentialInstanceConfig': {
+                        'enableConfidentialCompute': false
+                      },
+                      'keyRevocationActionType': 'NONE_ON_KEY_REVOCATION',
+                      '@type': 'type.googleapis.com/compute.instances.insert'
+                    },
+                    'response': {
+                    },
+                    'resourceLocation': {
+                      'currentLocations': [
+                        'asia-southeast1-b'
+                      ]
+                    }
+                  },
+                  'insertId': '-hr9f3ne1hgbw',
+                  'resource': {
+                    'type': 'gce_instance',
+                    'labels': {
+                      'project_id': 'project-1',
+                      'instance_id': '49125100000000000',
+                      'zone': 'asia-southeast1-b'
+                    }
+                  },
+                  'timestamp': '2023-04-24T05:43:40.164728Z',
+                  'severity': 'NOTICE',
+                  'logName': 'projects/project-1/logs/cloudaudit.googleapis.com%2Factivity',
+                  'operation': {
+                    'id': 'operation-1682315020101-5fa0e7d2c679b-e536dd4c-28540ed5',
+                    'producer': 'compute.googleapis.com',
+                    'first': true
+                  },
+                  'receiveTimestamp': '2023-04-24T05:43:41.258411034Z'
+                }";
+
+            var r = LogRecord.Deserialize(json)!;
+            Assert.IsTrue(InsertInstanceEvent.IsInsertInstanceEvent(r));
+
+            var e = (InsertInstanceEvent)r.ToEvent();
+
+            Assert.AreEqual(
+                "TERMINATE",
+                e.SchedulingPolicy?.MaintenancePolicy);
+            Assert.AreEqual(4, e.SchedulingPolicy?.MinNodeCpus);
         }
 
         [Test]

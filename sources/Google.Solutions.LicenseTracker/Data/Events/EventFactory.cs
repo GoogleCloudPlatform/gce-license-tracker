@@ -59,6 +59,9 @@ namespace Google.Solutions.LicenseTracker.Data.Events
                 //
                 { SetMachineTypeEvent.Method, rec => new SetMachineTypeEvent(rec) },
                 { UpdateInstanceEvent.Method, rec => new UpdateInstanceEvent(rec) },
+                { UpdateInstanceEvent.BetaMethod, rec => new UpdateInstanceEvent(rec) },
+                { SetSchedulingEvent.Method, rec => new SetSchedulingEvent(rec) },
+                { SetSchedulingEvent.BetaMethod, rec => new SetSchedulingEvent(rec) },
 
                 //
                 // System events.

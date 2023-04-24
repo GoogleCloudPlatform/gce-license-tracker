@@ -19,45 +19,31 @@
 // under the License.
 //
 
-using Google.Apis.Compute.v1.Data;
-using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Data.Logs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Google.Solutions.LicenseTracker.Data.Events.Config
 {
-    internal class UpdateInstanceEvent : InstanceOperationEventBase
+    internal class SetSchedulingEvent : InstanceOperationEventBase
     {
-        public const string Method = "v1.compute.instances.update";
-        public const string BetaMethod = "beta.compute.instances.update";
+        public const string Method = "v1.compute.instances.setScheduling";
+        public const string BetaMethod = "beta.compute.instances.setScheduling";
 
-        public MachineTypeLocator? MachineType { get; }
         public SchedulingPolicy? SchedulingPolicy { get; }
 
-        public UpdateInstanceEvent(LogRecord logRecord) : base(logRecord)
+        public SetSchedulingEvent(LogRecord logRecord) : base(logRecord)
         {
-            if (logRecord.ProtoPayload?.Request?.Value<string>("machineType") is var machineType &&
-                !string.IsNullOrEmpty(machineType))
-            {
-                this.MachineType = MachineTypeLocator.FromString(machineType);
-            }
-
-            if (logRecord.ProtoPayload?.Request?["scheduling"] is var schedulingPolicy &&
-                schedulingPolicy != null)
+            if (logRecord.ProtoPayload?.Request?.Value<string>("onHostMaintenance") 
+                is var maintenancePolicy && !string.IsNullOrEmpty(maintenancePolicy))
             {
                 this.SchedulingPolicy = new SchedulingPolicy(
-                    schedulingPolicy.Value<string>("onHostMaintenance") ?? "TERMINATE",
-                    schedulingPolicy.Value<uint?>("minNodeCpus"));
+                    maintenancePolicy,
+                    logRecord.ProtoPayload?.Request?.Value<uint?>("minNodeCpus"));
             }
         }
 
-        public static bool IsUpdateInstanceEvent(LogRecord record)
+        public static bool IsSetSchedulingEvent(LogRecord record)
         {
-            return record.IsActivityEvent && 
+            return record.IsActivityEvent &&
                 (record.ProtoPayload?.MethodName == Method || record.ProtoPayload?.MethodName == BetaMethod);
         }
     }
