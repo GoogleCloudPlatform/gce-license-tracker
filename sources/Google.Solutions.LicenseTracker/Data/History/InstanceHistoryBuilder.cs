@@ -47,8 +47,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
         //
         internal static EventOrder ProcessingOrder = EventOrder.NewestFirst;
         internal static IEnumerable<string> ProcessingSeverities => new[] { "NOTICE", "INFO" };
-        internal static IEnumerable<string> ProcessingMethods =>
-            EventFactory.LifecycleEventMethods.Concat(EventFactory.SystemEventMethods);
+        internal static IEnumerable<string> ProcessingMethods => EventFactory.EventMethods;
 
         private readonly ILogger logger;
 
