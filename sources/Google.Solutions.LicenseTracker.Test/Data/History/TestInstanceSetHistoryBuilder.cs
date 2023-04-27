@@ -27,13 +27,10 @@ using Google.Solutions.LicenseTracker.Data.Logs;
 using Google.Solutions.LicenseTracker.Data.History;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 
 namespace Google.Solutions.LicenseTracker.Test.Data.History
 {
@@ -43,6 +40,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         private static readonly InstanceLocator SampleReference = new InstanceLocator("pro", "zone", "name");
         private static readonly ImageLocator SampleImage
             = ImageLocator.FromString("projects/project-1/global/images/image-1");
+        private static readonly MachineTypeLocator SampleMachineType
+            = MachineTypeLocator.FromString("projects/project-1/zones/asia-southeast1-b/machineTypes/e2-medium");
 
         private readonly ILogger logger = new Mock<ILogger>().Object;
 
@@ -85,7 +84,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                 1,
                 SampleReference,
                 SampleImage,
-                null,
+                SampleMachineType,
+                new SchedulingPolicy("TERMINATE", null),
                 InstanceState.Running,
                 DateTime.UtcNow,
                 Tenancies.Fleet,
@@ -96,9 +96,11 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
 
             Assert.AreEqual(1, set.PlacementHistories.Count());
             Assert.AreEqual(1, set.MachineTypeHistories.Count());
+            Assert.AreEqual(1, set.SchedulingPolicyHistories.Count());
 
             Assert.AreEqual(1, set.PlacementHistories.First().InstanceId);
             Assert.AreEqual(1, set.MachineTypeHistories.First().Value.InstanceId);
+            Assert.AreEqual(1, set.SchedulingPolicyHistories.First().Value.InstanceId);
         }
 
         [Test]
@@ -113,7 +115,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                 1,
                 SampleReference,
                 SampleImage,
-                null,
+                SampleMachineType,
+                new SchedulingPolicy("TERMINATE", null),
                 InstanceState.Running,
                 DateTime.UtcNow,
                 Tenancies.SoleTenant,
@@ -124,6 +127,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
 
             Assert.AreEqual(1, set.PlacementHistories.Count());
             Assert.AreEqual(1, set.PlacementHistories.First().InstanceId);
+
             Assert.AreEqual("server-1", set.PlacementHistories.First().Placements.First().ServerId);
             Assert.AreEqual("type-1", set.PlacementHistories.First().Placements.First().NodeType?.Name);
         }

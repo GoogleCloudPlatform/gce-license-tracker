@@ -19,6 +19,7 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.History;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Util;
@@ -164,6 +165,10 @@ namespace Google.Solutions.LicenseTracker.Services
                     MachineType = instanceSetHistory?
                         .MachineTypeHistories
                         .TryGet(i.InstanceId)?
+                        .GetHistoricValue(p.From),
+                    SchedulingPolicy = instanceSetHistory ?
+                        .SchedulingPolicyHistories
+                        .TryGet(i.InstanceId)?
                         .GetHistoricValue(p.From)
                 };
             }
@@ -225,5 +230,10 @@ namespace Google.Solutions.LicenseTracker.Services
         /// Machine type, if known.
         /// </summary>
         public MachineTypeLocator? MachineType { get; init; }
+
+        /// <summary>
+        /// Scheduling policy, if known.
+        /// </summary>
+        public SchedulingPolicy? SchedulingPolicy { get; init; }
     }
 }

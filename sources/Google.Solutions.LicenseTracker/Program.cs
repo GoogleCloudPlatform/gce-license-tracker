@@ -192,7 +192,7 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.StartedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}/{9}",
                         placement.InstanceId,
                         placement.Instance?.Name,
                         placement.Placement.ServerId,
@@ -200,7 +200,9 @@ namespace Google.Solutions.LicenseTracker
                         placement.Placement.From,
                         placement.License?.OperatingSystem,
                         placement.License?.LicenseType,
-                        placement.MachineType?.Name);
+                        placement.MachineType?.Name,
+                        placement.SchedulingPolicy?.MaintenancePolicy,
+                        placement.SchedulingPolicy?.MinNodeCpus?.ToString() ?? "-");
                 }
 
 
@@ -211,7 +213,7 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.EndedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}/{9}",
                         placement.InstanceId,
                         placement.Instance?.Name,
                         placement.Placement.ServerId,
@@ -219,7 +221,9 @@ namespace Google.Solutions.LicenseTracker
                         placement.Placement.To,
                         placement.License?.OperatingSystem,
                         placement.License?.LicenseType,
-                        placement.MachineType?.Name);
+                        placement.MachineType?.Name,
+                        placement.SchedulingPolicy?.MaintenancePolicy,
+                        placement.SchedulingPolicy?.MinNodeCpus.ToString() ?? "-");
                 }
             }
         }

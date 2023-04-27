@@ -19,6 +19,7 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.Locator;
 
 namespace Google.Solutions.LicenseTracker.Data.History
@@ -36,16 +37,20 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public IDictionary<ulong, ConfigurationHistory<MachineTypeLocator>> MachineTypeHistories { get; }
 
+        public IDictionary<ulong, ConfigurationHistory<SchedulingPolicy>> SchedulingPolicyHistories { get; }
+
         internal InstanceSetHistory(
             DateTime startDate,
             DateTime endDate,
             IEnumerable<PlacementHistory> instances,
-            IDictionary<ulong, ConfigurationHistory<MachineTypeLocator>> machineTypeHistories)
+            IDictionary<ulong, ConfigurationHistory<MachineTypeLocator>> machineTypeHistories,
+            IDictionary<ulong, ConfigurationHistory<SchedulingPolicy>> schedulingPolicyHistories)
         {
             this.StartDate = startDate;
             this.EndDate = endDate;
             this.PlacementHistories = instances;
             this.MachineTypeHistories = machineTypeHistories;
+            this.SchedulingPolicyHistories = schedulingPolicyHistories;
         }
     }
 }

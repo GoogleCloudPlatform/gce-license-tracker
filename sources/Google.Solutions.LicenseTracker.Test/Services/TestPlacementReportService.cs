@@ -20,6 +20,7 @@
 //
 
 using Google.Solutions.LicenseTracker.Adapters;
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.History;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Services;
@@ -101,7 +102,8 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                         {
                             new Placement(endDate.AddDays(-1), endDate)
                         }) },
-                    new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>()));
+                    new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>(),
+                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -150,7 +152,8 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                         {
                             new Placement(endDate.AddDays(-1), endDate) // till end
                         }) },
-                    new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>()));
+                    new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>(),
+                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -198,7 +201,8 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                         {
                             new Placement(endDate.AddDays(-2), endDate.AddDays(-1))
                         }) },
-                    new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>()));
+                    new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>(),
+                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,

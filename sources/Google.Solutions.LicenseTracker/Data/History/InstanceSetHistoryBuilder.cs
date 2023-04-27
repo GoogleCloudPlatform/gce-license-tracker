@@ -21,6 +21,7 @@
 
 using Google.Apis.Compute.v1.Data;
 using Google.Solutions.LicenseTracker.Data.Events;
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Util;
 using Microsoft.Extensions.Logging;
@@ -47,13 +48,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
             }
             else
             {
-                var newBuilder = new InstanceHistoryBuilder(
-                    PlacementHistoryBuilder.ForDeletedInstance(
-                        instanceId,
-                        this.logger),
-                    new MachineTypeConfigurationHistoryBuilder(
-                        instanceId,
-                        null));
+                var newBuilder = InstanceHistoryBuilder.ForDeletedInstance(
+                    instanceId,
+                    this.logger);
                 this.instanceBuilders[instanceId] = newBuilder;
                 return newBuilder;
             }
@@ -85,6 +82,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             InstanceLocator reference,
             ImageLocator? image,
             MachineTypeLocator? machineType,
+            SchedulingPolicy? schedulingPolicy,
             InstanceState state,
             DateTime lastSeen,
             Tenancies tenancy,
@@ -92,20 +90,18 @@ namespace Google.Solutions.LicenseTracker.Data.History
             NodeTypeLocator? nodeType)
         {
             Debug.Assert(!tenancy.IsFlagCombination());
-            this.instanceBuilders[instanceId] = new InstanceHistoryBuilder(
-                PlacementHistoryBuilder.ForExistingInstance(
-                    instanceId,
-                    reference,
-                    image,
-                    state,
-                    lastSeen,
-                    tenancy,
-                    serverId,
-                    nodeType,
-                    this.logger),
-                new MachineTypeConfigurationHistoryBuilder(
-                    instanceId,
-                    machineType));
+            this.instanceBuilders[instanceId] = InstanceHistoryBuilder.ForExistingInstance(
+                instanceId,
+                reference,
+                image,
+                machineType,
+                schedulingPolicy,
+                state,
+                lastSeen,
+                tenancy,
+                serverId,
+                nodeType,
+                this.logger);
         }
 
         public void AddExistingInstances(
@@ -150,6 +146,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     image = ImageLocator.FromString(imageUrl);
                 }
 
+                Tenancies tenancy;
+                string? serverId;
+                NodeTypeLocator? nodeType;
                 if (instance.Scheduling.NodeAffinities != null && instance.Scheduling.NodeAffinities.Any())
                 {
                     // This VM runs on a sole-tenant node.
@@ -164,37 +163,35 @@ namespace Google.Solutions.LicenseTracker.Data.History
                             instanceLocator);
                     }
 
-                    AddExistingInstance(
-                        (ulong)instance.Id!.Value,
-                        instanceLocator,
-                        image,
-                        MachineTypeLocator.FromString(instance.MachineType),
-                        instance.Status == "RUNNING"
-                            ? InstanceState.Running
-                            : InstanceState.Terminated,
-                        this.EndDate,
-                        Tenancies.SoleTenant,
-                        node?.ServerId,
-                        node?.NodeType != null
-                            ? NodeTypeLocator.FromString(node.NodeType)
-                            : null);
+                    tenancy = Tenancies.SoleTenant;
+                    serverId = node?.ServerId;
+                    nodeType = node?.NodeType != null
+                        ? NodeTypeLocator.FromString(node.NodeType)
+                        : null;
                 }
                 else
                 {
                     // Fleet VM.
-                    AddExistingInstance(
-                        (ulong)instance.Id!.Value,
-                        instanceLocator,
-                        image,
-                        MachineTypeLocator.FromString(instance.MachineType),
-                        instance.Status == "RUNNING"
-                            ? InstanceState.Running
-                            : InstanceState.Terminated,
-                        this.EndDate,
-                        Tenancies.Fleet,
-                        null,
-                        null);
+                    tenancy = Tenancies.Fleet;
+                    serverId = null;
+                    nodeType = null;
                 }
+
+                AddExistingInstance(
+                    (ulong)instance.Id!.Value,
+                    instanceLocator,
+                    image,
+                    MachineTypeLocator.FromString(instance.MachineType),
+                    new SchedulingPolicy(
+                        instance.Scheduling.OnHostMaintenance,
+                        (uint?)instance.Scheduling.MinNodeCpus),
+                    instance.Status == "RUNNING"
+                        ? InstanceState.Running
+                        : InstanceState.Terminated,
+                    this.EndDate,
+                    tenancy,
+                    serverId,
+                    nodeType);
             }
         }
 
@@ -208,6 +205,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     .ToList(),
                 this.instanceBuilders.Values
                     .Select(b => b.BuildMachineTypeHistory())
+                    .ToDictionary(h => h.InstanceId, h => h),
+                this.instanceBuilders.Values
+                    .Select(b => b.BuildSchedulingPolicyHistory())
                     .ToDictionary(h => h.InstanceId, h => h));
         }
 

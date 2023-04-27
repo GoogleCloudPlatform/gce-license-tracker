@@ -20,7 +20,11 @@
 //
 
 using Google.Solutions.LicenseTracker.Data.Events;
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.Locator;
+using Google.Solutions.LicenseTracker.Util;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace Google.Solutions.LicenseTracker.Data.History
 {
@@ -28,13 +32,16 @@ namespace Google.Solutions.LicenseTracker.Data.History
     {
         private readonly PlacementHistoryBuilder placementHistoryBuilder;
         private readonly MachineTypeConfigurationHistoryBuilder machineTypeConfigurationHistoryBuilder;
+        private readonly SchedulingPolicyHistoryBuilder schedulingPolicyHistoryBuilder;
 
-        public InstanceHistoryBuilder(
+        private InstanceHistoryBuilder(
             PlacementHistoryBuilder placementHistoryBuilder, 
-            MachineTypeConfigurationHistoryBuilder machineTypeConfigurationHistoryBuilder)
+            MachineTypeConfigurationHistoryBuilder machineTypeConfigurationHistoryBuilder,
+            SchedulingPolicyHistoryBuilder schedulingPolicyHistoryBuilder)
         {
             this.placementHistoryBuilder = placementHistoryBuilder;
             this.machineTypeConfigurationHistoryBuilder = machineTypeConfigurationHistoryBuilder;
+            this.schedulingPolicyHistoryBuilder = schedulingPolicyHistoryBuilder;
         }
 
         public PlacementHistory BuildPlacementHistory(DateTime startDate)
@@ -47,6 +54,11 @@ namespace Google.Solutions.LicenseTracker.Data.History
             return this.machineTypeConfigurationHistoryBuilder.Build();
         }
 
+        public ConfigurationHistory<SchedulingPolicy> BuildSchedulingPolicyHistory()
+        {
+            return this.schedulingPolicyHistoryBuilder.Build();
+        }
+
         internal void ProcessEvent(EventBase e)
         {
             //
@@ -55,6 +67,62 @@ namespace Google.Solutions.LicenseTracker.Data.History
             //
             this.placementHistoryBuilder.ProcessEvent(e);
             this.machineTypeConfigurationHistoryBuilder.ProcessEvent(e);
+            this.schedulingPolicyHistoryBuilder.ProcessEvent(e);
+        }
+
+        //---------------------------------------------------------------------
+        // Factory methods.
+        //---------------------------------------------------------------------
+
+        internal static InstanceHistoryBuilder ForExistingInstance(
+            ulong instanceId,
+            InstanceLocator reference,
+            ImageLocator? image,
+            MachineTypeLocator? machineType,
+            SchedulingPolicy? schedulingPolicy,
+            InstanceState state,
+            DateTime lastSeen,
+            Tenancies tenancy,
+            string? serverId,
+            NodeTypeLocator? nodeType,
+            ILogger logger)
+        {
+            Debug.Assert(!tenancy.IsFlagCombination());
+            Debug.Assert(state != InstanceState.Deleted);
+
+            return new InstanceHistoryBuilder(
+                PlacementHistoryBuilder.ForExistingInstance(
+                    instanceId,
+                    reference,
+                    image,
+                    state,
+                    lastSeen,
+                    tenancy,
+                    serverId,
+                    nodeType,
+                    logger),
+                new MachineTypeConfigurationHistoryBuilder(
+                    instanceId,
+                    machineType),
+                new SchedulingPolicyHistoryBuilder(
+                    instanceId,
+                    schedulingPolicy));
+        }
+
+        internal static InstanceHistoryBuilder ForDeletedInstance(
+            ulong instanceId,
+            ILogger logger)
+        {
+            return new InstanceHistoryBuilder(
+                PlacementHistoryBuilder.ForDeletedInstance(
+                    instanceId,
+                    logger),
+                new MachineTypeConfigurationHistoryBuilder(
+                    instanceId,
+                    null),
+                new SchedulingPolicyHistoryBuilder(
+                    instanceId,
+                    null));
         }
     }
 }
