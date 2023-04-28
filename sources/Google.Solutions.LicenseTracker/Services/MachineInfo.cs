@@ -19,6 +19,7 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Locator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,11 @@ namespace Google.Solutions.LicenseTracker.Services
     public class MachineInfo
     {
         /// <summary>
+        /// Machine type.
+        /// </summary>
+        public MachineTypeLocator Type { get; }
+
+        /// <summary>
         /// Number of vCPU.
         /// </summary>
         public uint VirtualCpuCount { get; }
@@ -39,10 +45,19 @@ namespace Google.Solutions.LicenseTracker.Services
         /// </summary>
         public uint MemoryMb { get; }
 
-        internal MachineInfo(uint virtualCpuCount, uint memoryMb)
+        internal MachineInfo(
+            MachineTypeLocator machineType,
+            uint virtualCpuCount, 
+            uint memoryMb)
         {
+            this.Type = machineType;
             this.VirtualCpuCount = virtualCpuCount;
             this.MemoryMb = memoryMb;
+        }
+
+        public override string ToString()
+        {
+            return $"{this.Type.Name} ({this.VirtualCpuCount} vCPU, {this.MemoryMb} RAM)";
         }
     }
 }

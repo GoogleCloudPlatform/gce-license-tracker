@@ -124,5 +124,41 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                 new MachineTypeLocator("project-1", "zone-1", "type-3"),
                 history.GetHistoricValue(new DateTime(2023, 1, 1, 2, 3, 4, DateTimeKind.Utc)));
         }
+
+        //---------------------------------------------------------------------
+        // AllValues.
+        //---------------------------------------------------------------------
+
+        [Test]
+        public void WhenCurrentValueAndChangesEmpty_ThenAllValuesIsEmpty()
+        {
+            var history = new ConfigurationHistory<MachineTypeLocator>(
+                0,
+                null,
+                Enumerable.Empty<ConfigurationChange<MachineTypeLocator>>());
+
+            CollectionAssert.IsEmpty(history.AllValues);
+        }
+
+        [Test]
+        public void WhenCurrentValueAndChangesNotEmpty_ThenAllValuesIncludesAll()
+        {
+            var locator1 = new MachineTypeLocator("project-1", "zone-1", "type-1");
+            var locator2 = new MachineTypeLocator("project-1", "zone-1", "type-2");
+
+            var history = new ConfigurationHistory<MachineTypeLocator>(
+                0,
+                locator1,
+                new ConfigurationChange<MachineTypeLocator>[]
+                {
+                    new ConfigurationChange<MachineTypeLocator>(
+                        new DateTime(2022, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                        locator2)
+                });
+
+            CollectionAssert.AreEquivalent(
+                new[] { locator1, locator2 },
+                history.AllValues);
+        }
     }
 }

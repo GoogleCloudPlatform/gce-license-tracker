@@ -39,5 +39,10 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Config
             this.MaintenancePolicy = maintenancePolicy;
             this.MinNodeCpus = minNodeCpus;
         }
+
+        public override string ToString()
+        {
+            return $"{MaintenancePolicy} (Min vCPU: {this.MinNodeCpus})";
+        }
     }
 }

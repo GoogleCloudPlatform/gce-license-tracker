@@ -41,15 +41,15 @@ namespace Google.Solutions.LicenseTracker.Services
     {
         private readonly ILogger logger;
         private readonly IInstanceHistoryService historyService;
-        private readonly ILookupService licenseService;
+        private readonly ILookupService lookupService;
 
         public PlacementReportService(
             IInstanceHistoryService historyService,
-            ILookupService licenseService,
+            ILookupService lookupService,
             ILogger<PlacementReportService> logger)
         {
             this.historyService = historyService;
-            this.licenseService = licenseService;
+            this.lookupService = lookupService;
             this.logger = logger;
         }
 
@@ -128,15 +128,21 @@ namespace Google.Solutions.LicenseTracker.Services
                 .ConfigureAwait(false);
 
             //
-            // Find out which licenses were used.
+            // Find out which licenses and machine types were used.
             //
-            var licenses = await this.licenseService
-                .LookupLicenseInfoAsync(
-                    instanceSetHistory.PlacementHistories
-                        .Where(i => i.Image != null)
-                        .Select(i => i.Image!),
-                    cancellationToken)
-                .ConfigureAwait(false);
+            var licensesTask = this.lookupService.LookupLicenseInfoAsync(
+                instanceSetHistory.PlacementHistories
+                    .Where(i => i.Image != null)
+                    .Select(i => i.Image!),
+                cancellationToken);
+            var machineTypesTask = this.lookupService.LookupMachineInfoAsync(
+                instanceSetHistory.MachineTypeHistories
+                    .Values
+                    .SelectMany(history => history.AllValues),
+                cancellationToken);
+
+            var licenseInfoByImage = await licensesTask.ConfigureAwait(false);
+            var machineInfoByType = await machineTypesTask.ConfigureAwait(false);
 
             return new PlacementReport()
             {
@@ -156,17 +162,23 @@ namespace Google.Solutions.LicenseTracker.Services
 
             PlacementEvent CreatePlacementEvent(PlacementHistory i, Placement p)
             {
+                var machineType = instanceSetHistory?
+                    .MachineTypeHistories
+                    .TryGet(i.InstanceId)?
+                    .GetHistoricValue(p.From);
+
                 return new PlacementEvent()
                 {
                     Instance = i.Reference,
                     InstanceId = i.InstanceId,
                     Image = i.Image,
                     Placement = p,
-                    License = i.Image != null ? licenses?.TryGet(i.Image) : null,
-                    MachineType = instanceSetHistory?
-                        .MachineTypeHistories
-                        .TryGet(i.InstanceId)?
-                        .GetHistoricValue(p.From),
+                    License = i.Image != null 
+                        ? licenseInfoByImage?.TryGet(i.Image) 
+                        : null,
+                    Machine = machineType != null
+                        ? machineInfoByType.TryGet(machineType)
+                        : null,
                     SchedulingPolicy = instanceSetHistory ?
                         .SchedulingPolicyHistories
                         .TryGet(i.InstanceId)?
@@ -228,9 +240,9 @@ namespace Google.Solutions.LicenseTracker.Services
         public LicenseInfo? License { get; init; }
 
         /// <summary>
-        /// Machine type, if known.
+        /// Machine info, if known.
         /// </summary>
-        public MachineTypeLocator? MachineType { get; init; }
+        public MachineInfo? Machine { get; init; }
 
         /// <summary>
         /// Scheduling policy, if known.

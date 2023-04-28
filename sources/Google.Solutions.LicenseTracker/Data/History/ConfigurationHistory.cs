@@ -20,6 +20,7 @@
 //
 
 using Google.Solutions.LicenseTracker.Data.Locator;
+using Google.Solutions.LicenseTracker.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,6 +71,13 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     .NewValue;
             }
         }
+
+        public IEnumerable<TConfigurationItem> AllValues => this.changes
+            .EnsureNotNull()
+            .Select(c => c.NewValue)
+            .Concat(this.currentValue == null
+                ? Enumerable.Empty<TConfigurationItem>()
+                : new TConfigurationItem[] { this.currentValue });
     }
 
     public class ConfigurationChange<TConfigurationItem>

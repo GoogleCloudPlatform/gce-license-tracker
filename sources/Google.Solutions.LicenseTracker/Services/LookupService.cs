@@ -154,6 +154,7 @@ namespace Google.Solutions.LicenseTracker.Services
                         machineTypeDetails.MemoryMb != null)
                     {
                         result[machineType] = new MachineInfo(
+                            machineType,
                             (uint)machineTypeDetails.GuestCpus!,
                             (uint)machineTypeDetails.MemoryMb!);
                     }

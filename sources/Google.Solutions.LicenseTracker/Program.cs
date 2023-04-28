@@ -193,19 +193,17 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.StartedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}/{9}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}",
                         placement.InstanceId,
                         placement.Instance?.Name,
-                        placement.Placement.ServerId,
+                        placement.Placement.ServerId ?? "fleet",
                         placement.Placement.NodeType?.Name ?? "-",
                         placement.Placement.From,
                         placement.License?.OperatingSystem,
                         placement.License?.LicenseType,
-                        placement.MachineType?.Name,
-                        placement.SchedulingPolicy?.MaintenancePolicy,
-                        placement.SchedulingPolicy?.MinNodeCpus?.ToString() ?? "-");
+                        placement.Machine?.ToString() ?? "-",
+                        placement.SchedulingPolicy?.ToString() ?? "-");
                 }
-
 
                 Console.WriteLine(new String('-', 80));
                 Console.WriteLine("Placement ended events");
@@ -214,17 +212,16 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.EndedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}/{9}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}",
                         placement.InstanceId,
                         placement.Instance?.Name,
-                        placement.Placement.ServerId,
+                        placement.Placement.ServerId ?? "fleet",
                         placement.Placement.NodeType?.Name ?? "-",
                         placement.Placement.To,
                         placement.License?.OperatingSystem,
                         placement.License?.LicenseType,
-                        placement.MachineType?.Name,
-                        placement.SchedulingPolicy?.MaintenancePolicy,
-                        placement.SchedulingPolicy?.MinNodeCpus.ToString() ?? "-");
+                        placement.Machine?.ToString() ?? "-",
+                        placement.SchedulingPolicy?.ToString() ?? "-");
                 }
             }
         }
