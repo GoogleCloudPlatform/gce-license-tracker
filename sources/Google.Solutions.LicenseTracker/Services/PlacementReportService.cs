@@ -41,11 +41,11 @@ namespace Google.Solutions.LicenseTracker.Services
     {
         private readonly ILogger logger;
         private readonly IInstanceHistoryService historyService;
-        private readonly ILicenseService licenseService;
+        private readonly ILookupService licenseService;
 
         public PlacementReportService(
             IInstanceHistoryService historyService,
-            ILicenseService licenseService,
+            ILookupService licenseService,
             ILogger<PlacementReportService> logger)
         {
             this.historyService = historyService;

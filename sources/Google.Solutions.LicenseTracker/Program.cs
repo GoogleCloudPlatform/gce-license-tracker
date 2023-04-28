@@ -286,7 +286,7 @@ namespace Google.Solutions.LicenseTracker
 
                         services.AddTransient<IInstanceHistoryService, InstanceHistoryService>();
                         services.AddTransient<IPlacementReportService, PlacementReportService>();
-                        services.AddTransient<ILicenseService, LicenseService>();
+                        services.AddTransient<ILookupService, LookupService>();
                         services.AddTransient<IReportDatasetService, ReportDatasetService>();
                         services.AddTransient<IProjectAutodiscoveryService, ProjectAutodiscoveryService>();
                     })

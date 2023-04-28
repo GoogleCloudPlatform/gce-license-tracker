@@ -30,9 +30,13 @@ using NUnit.Framework;
 namespace Google.Solutions.LicenseTracker.Test.Services
 {
     [TestFixture]
-    public class TestLicenseService
+    public class TestLookupService
     {
         private const string ByolLicense = "https://www.googleapis.com/compute/v1/projects/windows-cloud/global/licenses/windows-server-2016-byol";
+
+        //---------------------------------------------------------------------
+        // LookupLicenseInfoAsync.
+        //---------------------------------------------------------------------
 
         [Test]
         public async Task WhenGlobalImageFound_ThenLicenseInfoIsInferredFromLicenseString()
@@ -51,9 +55,9 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                     }
                 });
 
-            var service = new LicenseService(
+            var service = new LookupService(
                 gceAdapter.Object,
-                new NullLogger<LicenseService>());
+                new NullLogger<LookupService>());
 
             var licenses = await service.LookupLicenseInfoAsync(
                     new[] { imageLocator },
@@ -84,9 +88,9 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                     }
                 });
 
-            var service = new LicenseService(
+            var service = new LookupService(
                 gceAdapter.Object,
-                new NullLogger<LicenseService>());
+                new NullLogger<LookupService>());
 
             var licenses = await service.LookupLicenseInfoAsync(
                     new[] { imageLocator },
@@ -110,9 +114,9 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new ResourceNotFoundException("test", new Exception()));
 
-            var service = new LicenseService(
+            var service = new LookupService(
                 gceAdapter.Object,
-                new NullLogger<LicenseService>());
+                new NullLogger<LookupService>());
 
             var licenses = await service.LookupLicenseInfoAsync(
                     new[] { imageLocator },
@@ -133,9 +137,9 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new ResourceNotFoundException("test", new Exception()));
 
-            var service = new LicenseService(
+            var service = new LookupService(
                 gceAdapter.Object,
-                new NullLogger<LicenseService>());
+                new NullLogger<LookupService>());
             
             var licenses = await service.LookupLicenseInfoAsync(
                     new[] { imageLocator },
@@ -159,9 +163,9 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                     It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new ResourceNotFoundException("test", new Exception()));
 
-            var service = new LicenseService(
+            var service = new LookupService(
                 gceAdapter.Object,
-                new NullLogger<LicenseService>());
+                new NullLogger<LookupService>());
 
             var licenses = await service.LookupLicenseInfoAsync(
                     new[] { imageLocator },
@@ -173,6 +177,59 @@ namespace Google.Solutions.LicenseTracker.Test.Services
 
             Assert.AreEqual(OperatingSystemTypes.Windows, licenseInfo?.OperatingSystem);
             Assert.AreEqual(LicenseTypes.Spla, licenseInfo?.LicenseType);
+        }
+
+        //---------------------------------------------------------------------
+        // LookupMachineInfoAsync.
+        //---------------------------------------------------------------------
+
+        [Test]
+        public async Task WhenMachineTypeFound_ThenLookupMachineInfoReturnsDetails()
+        {
+            var machineTypeLocator = new MachineTypeLocator("project-1", "zone-1", "type-1");
+            var gceAdapter = new Mock<IComputeEngineAdapter>();
+            gceAdapter.Setup(a => a.GetMachineTypeAsync(
+                    machineTypeLocator,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new Apis.Compute.v1.Data.MachineType()
+                {
+                    GuestCpus = 42,
+                    MemoryMb = 123
+                });
+
+            var service = new LookupService(
+                gceAdapter.Object,
+                new NullLogger<LookupService>());
+
+            var machineInfo = await service.LookupMachineInfoAsync(
+                    new[] { machineTypeLocator, machineTypeLocator },
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+
+            Assert.AreEqual(42, machineInfo[machineTypeLocator].VirtualCpuCount);
+            Assert.AreEqual(123, machineInfo[machineTypeLocator].MemoryMb);
+        }
+
+        [Test]
+        public async Task WhenMachineTypeNotFound_ThenLookupMachineInfoIgnoresType()
+        {
+            var machineTypeLocator = new MachineTypeLocator("project-1", "zone-1", "type-1");
+            var gceAdapter = new Mock<IComputeEngineAdapter>();
+            gceAdapter.Setup(a => a.GetMachineTypeAsync(
+                    machineTypeLocator,
+                    It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new ResourceNotFoundException("test", new Exception()));
+
+            var service = new LookupService(
+                gceAdapter.Object,
+                new NullLogger<LookupService>());
+
+            var machineInfo = await service.LookupMachineInfoAsync(
+                    new[] { machineTypeLocator, machineTypeLocator },
+                    CancellationToken.None)
+                .ConfigureAwait(false);
+
+            Assert.IsFalse(machineInfo.Keys.Any());
         }
     }
 }

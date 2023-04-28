@@ -43,7 +43,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         {
             var service = new PlacementReportService(
                 new Mock<IInstanceHistoryService>().Object,
-                new Mock<ILicenseService>().Object,
+                new Mock<ILookupService>().Object,
                 new NullLogger<PlacementReportService>());
 
             ExceptionAssert.ThrowsAggregateException<ArgumentException>(
@@ -60,7 +60,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         {
             var service = new PlacementReportService(
                 new Mock<IInstanceHistoryService>().Object,
-                new Mock<ILicenseService>().Object,
+                new Mock<ILookupService>().Object,
                 new NullLogger<PlacementReportService>());
 
             ExceptionAssert.ThrowsAggregateException<ArgumentException>(
@@ -75,7 +75,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         [Test]
         public async Task WhenImageUnknown_ThenPlacementsHaveNullLicense()
         {
-            var licenseService = new Mock<ILicenseService>();
+            var licenseService = new Mock<ILookupService>();
             licenseService.Setup(s => s.LookupLicenseInfoAsync(
                     It.IsAny<IEnumerable<IImageLocator>>(),
                     It.IsAny<CancellationToken>()))
@@ -124,7 +124,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         [Test]
         public async Task WhenPlacementStraddlesEndDate_ThenReportContainsPlacementStartEvent()
         {
-            var licenseService = new Mock<ILicenseService>();
+            var licenseService = new Mock<ILookupService>();
             licenseService.Setup(s => s.LookupLicenseInfoAsync(
                     It.IsAny<IEnumerable<IImageLocator>>(),
                     It.IsAny<CancellationToken>()))
@@ -172,7 +172,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         [Test]
         public async Task WhenPlacementDoesNotStraddleEndDate_ThenReportContainsPlacementStartAndEndEvent()
         {
-            var licenseService = new Mock<ILicenseService>();
+            var licenseService = new Mock<ILookupService>();
             licenseService.Setup(s => s.LookupLicenseInfoAsync(
                     It.IsAny<IEnumerable<IImageLocator>>(),
                     It.IsAny<CancellationToken>()))

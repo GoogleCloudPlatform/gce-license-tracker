@@ -54,6 +54,10 @@ namespace Google.Solutions.LicenseTracker.Adapters
         Task<IEnumerable<Instance>> ListInstancesAsync(
             ProjectLocator projectId,
             CancellationToken cancellationToken);
+
+        Task<MachineType> GetMachineTypeAsync(
+            MachineTypeLocator machineType,
+            CancellationToken cancellationToken);
     }
 
     internal class ComputeEngineAdapter : IComputeEngineAdapter
@@ -247,10 +251,10 @@ namespace Google.Solutions.LicenseTracker.Adapters
             return nodesAcrossGroups;
         }
 
-
         //---------------------------------------------------------------------
         // Instances.
         //---------------------------------------------------------------------
+
         public async Task<IEnumerable<Instance>> ListInstancesAsync(
             ProjectLocator projectId,
             CancellationToken cancellationToken)
@@ -284,6 +288,33 @@ namespace Google.Solutions.LicenseTracker.Adapters
                     "You need the 'Compute Viewer' role (or an equivalent custom role) " +
                     "to perform this action.",
                     e);
+            }
+        }
+
+        //---------------------------------------------------------------------
+        // Machine types.
+        //---------------------------------------------------------------------
+
+        public async Task<MachineType> GetMachineTypeAsync(
+            MachineTypeLocator locator,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                return await this.service.MachineTypes
+                    .Get(locator.ProjectId, locator.Zone, locator.Name)
+                    .ExecuteAsync(cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception e) when (
+                e.Unwrap() is GoogleApiException apiEx && apiEx.IsNotFoundError())
+            {
+                throw new ResourceNotFoundException($"Machine type {locator} not found", e);
+            }
+            catch (Exception e) when (
+                e.Unwrap() is GoogleApiException apiEx && apiEx.IsAccessDeniedError())
+            {
+                throw new ResourceAccessDeniedException($"Access to {locator} denied", e);
             }
         }
     }

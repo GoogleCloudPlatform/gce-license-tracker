@@ -27,21 +27,25 @@ using Microsoft.Extensions.Logging;
 
 namespace Google.Solutions.LicenseTracker.Services
 {
-    public interface ILicenseService
+    public interface ILookupService
     {
         Task<IDictionary<IImageLocator, LicenseInfo>> LookupLicenseInfoAsync(
             IEnumerable<IImageLocator> images,
             CancellationToken cancellationToken);
+
+        Task<IDictionary<MachineTypeLocator, MachineInfo>> LookupMachineInfoAsync(
+            IEnumerable<MachineTypeLocator> machineTypes,
+            CancellationToken cancellationToken);
     }
 
-    internal class LicenseService : ILicenseService
+    internal class LookupService : ILookupService
     {
         private readonly ILogger logger;
         private readonly IComputeEngineAdapter computeEngineAdapter;
 
-        public LicenseService(
+        public LookupService(
             IComputeEngineAdapter computeEngineAdapter,
-            ILogger<LicenseService> logger)
+            ILogger<LookupService> logger)
         {
             this.computeEngineAdapter = computeEngineAdapter;
             this.logger = logger;
@@ -77,7 +81,7 @@ namespace Google.Solutions.LicenseTracker.Services
             IEnumerable<IImageLocator> images,
             CancellationToken cancellationToken)
         {
-            var licenses = new Dictionary<IImageLocator, LicenseInfo>();
+            var result = new Dictionary<IImageLocator, LicenseInfo>();
             foreach (var image in images.Distinct())
             {
                 try
@@ -90,7 +94,7 @@ namespace Google.Solutions.LicenseTracker.Services
                     // "/compute/v1/projects/compute-image-tools/global/licenses/virtual-disk-import"
                     // are not helpful here. So do some filtering.
 
-                    licenses[image] = LicenseInfo.FromLicense(
+                    result[image] = LicenseInfo.FromLicense(
                         TryGetRelevantLicenseFromImage(imageInfo));
                 }
                 catch (ResourceNotFoundException) when (image.ProjectId == "windows-cloud")
@@ -100,7 +104,7 @@ namespace Google.Solutions.LicenseTracker.Services
                     // a Windows SPLA image.
                     //
 
-                    licenses[image] = new LicenseInfo(
+                    result[image] = new LicenseInfo(
                         null,
                         OperatingSystemTypes.Windows,
                         LicenseTypes.Spla);
@@ -122,7 +126,53 @@ namespace Google.Solutions.LicenseTracker.Services
                 }
             }
 
-            return licenses;
+            return result;
+        }
+
+        public async Task<IDictionary<MachineTypeLocator, MachineInfo>> LookupMachineInfoAsync(
+            IEnumerable<MachineTypeLocator> machineTypes, 
+            CancellationToken cancellationToken)
+        {
+            var result = new Dictionary<MachineTypeLocator, MachineInfo>();
+            foreach (var machineType in machineTypes.Distinct())
+            {
+                try
+                {
+                    //
+                    // NB. It's inefficient to look up each machine type individually,
+                    // but using aggregatedList is no good alternative:
+                    // - aggregatedList doesn't return custom machine types
+                    // - aggregatedList repeats the same machine types for each 
+                    //   zone, causing an excessively long response.
+                    //
+                    var machineTypeDetails = await this.computeEngineAdapter
+                        .GetMachineTypeAsync(machineType, cancellationToken)
+                        .ConfigureAwait(false);
+
+                    if (machineTypeDetails != null &&
+                        machineTypeDetails.GuestCpus != null &&
+                        machineTypeDetails.MemoryMb != null)
+                    {
+                        result[machineType] = new MachineInfo(
+                            (uint)machineTypeDetails.GuestCpus!,
+                            (uint)machineTypeDetails.MemoryMb!);
+                    }
+                }
+                catch (ResourceNotFoundException e)
+                {
+                    // Unknown or inaccessible machine type, skip.
+                    this.logger.LogWarning(
+                        "License for {0} could not be found: {0}", machineType, e);
+                }
+                catch (ResourceAccessDeniedException e)
+                {
+                    // Unknown or inaccessible machine type, skip.
+                    this.logger.LogWarning(
+                        "License for {0} could not be accessed: {0}", machineType, e);
+                }
+            }
+
+            return result;
         }
     }
 }
