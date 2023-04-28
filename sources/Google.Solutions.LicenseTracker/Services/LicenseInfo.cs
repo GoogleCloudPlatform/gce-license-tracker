@@ -22,7 +22,7 @@
 using Google.Solutions.LicenseTracker.Data.Locator;
 using System.ComponentModel;
 
-namespace Google.Solutions.LicenseTracker.Data.History
+namespace Google.Solutions.LicenseTracker.Services
 {
     public class LicenseInfo
     {

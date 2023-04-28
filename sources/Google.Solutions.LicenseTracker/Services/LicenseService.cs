@@ -21,7 +21,6 @@
 
 using Google.Apis.Compute.v1.Data;
 using Google.Solutions.LicenseTracker.Adapters;
-using Google.Solutions.LicenseTracker.Data.History;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Util;
 using Microsoft.Extensions.Logging;

@@ -20,7 +20,6 @@
 //
 
 using Google.Solutions.LicenseTracker.Adapters;
-using Google.Solutions.LicenseTracker.Data.History;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Services;
 using Google.Solutions.LicenseTracker.Util;
