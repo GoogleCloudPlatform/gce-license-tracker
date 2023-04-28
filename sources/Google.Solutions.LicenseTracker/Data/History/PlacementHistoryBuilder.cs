@@ -56,7 +56,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
         //
         private readonly LinkedList<Placement> placements = new LinkedList<Placement>();
 
-        private IImageLocator? image;
         private InstanceLocator? reference;
 
         private DateTime? lastStoppedOn;
@@ -145,7 +144,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
         private PlacementHistoryBuilder(
             ulong instanceId,
             InstanceLocator? reference,
-            ImageLocator? image,
             InstanceState state,
             DateTime? lastSeen,
             Tenancies tenancy,
@@ -164,7 +162,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
             this.logger = logger;
             this.InstanceId = instanceId;
             this.reference = reference;
-            this.image = image;
             this.lastStoppedOn = lastSeen;
 
             if (state == InstanceState.Running)
@@ -184,7 +181,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
         internal static PlacementHistoryBuilder ForExistingInstance(
             ulong instanceId,
             InstanceLocator reference,
-            ImageLocator? image,
             InstanceState state,
             DateTime lastSeen,
             Tenancies tenancy,
@@ -198,7 +194,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
             return new PlacementHistoryBuilder(
                 instanceId,
                 reference,
-                image,
                 state,
                 lastSeen,
                 tenancy,
@@ -213,7 +208,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
         {
             return new PlacementHistoryBuilder(
                 instanceId,
-                null,
                 null,
                 InstanceState.Deleted,
                 (DateTime?)null,    // Not clear yet when it was stopped
@@ -258,7 +252,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
             return new PlacementHistory(
                 this.InstanceId,
                 this.reference,
-                this.image,
                 sanitizedPlacements);
         }
 
@@ -266,7 +259,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
         // Lifecycle events that construct the history.
         //---------------------------------------------------------------------
 
-        public void OnInsert(DateTime date, InstanceLocator reference, IImageLocator? image)
+        public void OnInsert(DateTime date, InstanceLocator reference)
         {
             Debug.Assert(date <= this.lastEventDate);
             this.lastEventDate = date;
@@ -278,11 +271,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
             if (this.reference == null)
             {
                 this.reference = reference;
-            }
-
-            if (this.image == null && image != null)
-            {
-                this.image = image;
             }
 
             //
@@ -347,7 +335,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             }
             else if (e is InsertInstanceEvent insert)
             {
-                OnInsert(insert.Timestamp, insert.InstanceReference!, insert.Image);
+                OnInsert(insert.Timestamp, insert.InstanceReference!);
             }
             else if (e is IInstanceStateChangeEvent stateChange)
             {

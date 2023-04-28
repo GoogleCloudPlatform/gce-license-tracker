@@ -222,9 +222,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             Assert.AreEqual(1, set.PlacementHistories.Count());
 
             var instance = set.PlacementHistories.First();
-            Assert.AreEqual(
-                ImageLocator.FromString("projects/windows-cloud/global/images/windows-server"),
-                instance.Image);
             Assert.AreEqual(1, instance.Placements.Count());
 
             var placement = instance.Placements.First();
@@ -245,9 +242,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             Assert.AreEqual(1, set.PlacementHistories.Count());
 
             var instance = set.PlacementHistories.First();
-            Assert.AreEqual(
-                ImageLocator.FromString("projects/windows-cloud/global/images/windows-server"),
-                instance.Image);
             Assert.AreEqual(1, instance.Placements.Count());
 
             var placement = instance.Placements.First();
@@ -268,9 +262,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             Assert.AreEqual(1, set.PlacementHistories.Count());
 
             var instance = set.PlacementHistories.First();
-            Assert.AreEqual(
-                ImageLocator.FromString("projects/project-1/global/images/windows-server"),
-                instance.Image);
             Assert.AreEqual(2, instance.Placements.Count());
 
             var firstPlacement = instance.Placements.First();

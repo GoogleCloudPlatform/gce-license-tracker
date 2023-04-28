@@ -32,23 +32,10 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
     public class TestPlacementHistoryBuilder 
     {
         private static readonly InstanceLocator SampleReference = new InstanceLocator("pro", "zone", "name");
-        private static readonly ImageLocator SampleImage
-            = ImageLocator.FromString("projects/project-1/global/images/image-1");
         private static readonly NodeTypeLocator SampleNodeType
             = NodeTypeLocator.FromString("projects/project-1/zones/us-central1-a/nodeTypes/c2-node-60-240");
 
         private readonly ILogger logger = new Mock<ILogger>().Object;
-
-        [Test]
-        public void WhenInstanceIsDeletedAndNoEventsRegistered_ThenImageIsNull()
-        {
-            var b = PlacementHistoryBuilder.ForDeletedInstance(1, this.logger);
-            var i = b.Build(new DateTime(2019, 12, 1, 0, 0, 0, DateTimeKind.Utc));
-
-            Assert.AreEqual(1, i.InstanceId);
-
-            Assert.IsNull(i.Image);
-        }
 
         //---------------------------------------------------------------------
         // Placements for existing instances.
@@ -60,7 +47,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
-                SampleImage,
                 InstanceState.Terminated,
                 new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc),
                 Tenancies.SoleTenant,
@@ -84,7 +70,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
-                SampleImage,
                 InstanceState.Running,
                 new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc),
                 Tenancies.SoleTenant,
@@ -110,7 +95,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
-                SampleImage,
                 InstanceState.Running,
                 new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc),
                 Tenancies.SoleTenant,
@@ -138,7 +122,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
-                SampleImage,
                 InstanceState.Running,
                 new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc),
                 Tenancies.SoleTenant,
@@ -164,7 +147,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
-                SampleImage,
                 InstanceState.Running,
                 new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc),
                 Tenancies.SoleTenant,
@@ -196,7 +178,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
-                SampleImage,
                 InstanceState.Running,
                 new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc),
                 Tenancies.SoleTenant,
@@ -229,7 +210,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
             var b = PlacementHistoryBuilder.ForExistingInstance(
                 1,
                 SampleReference,
-                SampleImage,
                 InstanceState.Running,
                 lastSeen,
                 Tenancies.SoleTenant,

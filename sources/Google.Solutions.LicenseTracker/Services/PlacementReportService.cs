@@ -131,9 +131,9 @@ namespace Google.Solutions.LicenseTracker.Services
             // Find out which licenses and machine types were used.
             //
             var licensesTask = this.lookupService.LookupLicenseInfoAsync(
-                instanceSetHistory.PlacementHistories
-                    .Where(i => i.Image != null)
-                    .Select(i => i.Image!),
+                instanceSetHistory.ImageHistories
+                    .Values
+                    .SelectMany(history => history.AllValues),
                 cancellationToken);
             var machineTypesTask = this.lookupService.LookupMachineInfoAsync(
                 instanceSetHistory.MachineTypeHistories
@@ -162,6 +162,11 @@ namespace Google.Solutions.LicenseTracker.Services
 
             PlacementEvent CreatePlacementEvent(PlacementHistory i, Placement p)
             {
+                var image = instanceSetHistory?
+                    .ImageHistories
+                    .TryGet(i.InstanceId)?
+                    .GetHistoricValue(DateTime.UtcNow);
+
                 var machineType = instanceSetHistory?
                     .MachineTypeHistories
                     .TryGet(i.InstanceId)?
@@ -171,10 +176,10 @@ namespace Google.Solutions.LicenseTracker.Services
                 {
                     Instance = i.Reference,
                     InstanceId = i.InstanceId,
-                    Image = i.Image,
+                    Image = image,
                     Placement = p,
-                    License = i.Image != null 
-                        ? licenseInfoByImage?.TryGet(i.Image) 
+                    License = image != null 
+                        ? licenseInfoByImage?.TryGet(image) 
                         : null,
                     Machine = machineType != null
                         ? machineInfoByType.TryGet(machineType)

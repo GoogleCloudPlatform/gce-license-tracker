@@ -215,6 +215,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     .ToDictionary(h => h.InstanceId, h => h),
                 this.instanceBuilders.Values
                     .Select(b => b.SchedulingPolicy.Build())
+                    .ToDictionary(h => h.InstanceId, h => h),
+                this.instanceBuilders.Values
+                    .Select(b => b.Image.Build())
                     .ToDictionary(h => h.InstanceId, h => h));
         }
 

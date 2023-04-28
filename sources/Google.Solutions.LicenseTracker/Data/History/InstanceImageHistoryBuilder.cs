@@ -1,5 +1,5 @@
 ﻿//
-// Copyright 2022 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed to the Apache Software Foundation (ASF) under one
 // or more contributor license agreements.  See the NOTICE file
@@ -19,34 +19,40 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Events;
+using Google.Solutions.LicenseTracker.Data.Events.Lifecycle;
 using Google.Solutions.LicenseTracker.Data.Locator;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Google.Solutions.LicenseTracker.Data.History
 {
     /// <summary>
-    /// Placement history for a specific VM instance.
+    /// Reconstructs the history of which image a given
+    /// instance was based on by analyzing events in reverse 
+    /// chronological order.
     /// </summary>
-    public class PlacementHistory
+    public class InstanceImageHistoryBuilder
+        : ConfigurationHistoryBuilderBase<IImageLocator>
     {
-        public ulong InstanceId { get; }
-
-        public InstanceLocator? Reference { get; }
-
-        public IEnumerable<Placement> Placements { get; }
-
-        internal PlacementHistory(
+        public InstanceImageHistoryBuilder(
             ulong instanceId,
-            InstanceLocator? reference,
-            IEnumerable<Placement> placements)
+            IImageLocator? currentMachineType)
+            : base(instanceId, currentMachineType)
         {
-            this.InstanceId = instanceId;
-            this.Reference = reference;
-            this.Placements = placements;
         }
 
-        public override string ToString()
+        public override void ProcessEvent(EventBase e)
         {
-            return $"{this.Reference} ({this.InstanceId})";
+            if (e is InsertInstanceEvent insert && insert.Image != null)
+            {
+                this.changes.AddLast(new ConfigurationChange<IImageLocator>(
+                    insert.Timestamp,
+                    insert.Image));
+            }
         }
     }
 }

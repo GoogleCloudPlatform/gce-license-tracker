@@ -33,15 +33,18 @@ namespace Google.Solutions.LicenseTracker.Data.History
         public PlacementHistoryBuilder Placements { get; }
         public InstanceMachineTypeHistoryBuilder MachineType { get; }
         public InstanceSchedulingPolicyHistoryBuilder SchedulingPolicy { get; }
+        public InstanceImageHistoryBuilder Image { get; }
 
         private InstanceHistoryBuilder(
             PlacementHistoryBuilder placements, 
             InstanceMachineTypeHistoryBuilder machineType, 
-            InstanceSchedulingPolicyHistoryBuilder schedulingPolicy)
+            InstanceSchedulingPolicyHistoryBuilder schedulingPolicy,
+            InstanceImageHistoryBuilder image)
         {
             this.Placements = placements;
             this.MachineType = machineType;
             this.SchedulingPolicy = schedulingPolicy;
+            this.Image = image;
         }
 
         internal void ProcessEvent(EventBase e)
@@ -53,6 +56,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             this.Placements.ProcessEvent(e);
             this.MachineType.ProcessEvent(e);
             this.SchedulingPolicy.ProcessEvent(e);
+            this.Image.ProcessEvent(e);
         }
 
         //---------------------------------------------------------------------
@@ -79,7 +83,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 PlacementHistoryBuilder.ForExistingInstance(
                     instanceId,
                     reference,
-                    image,
                     state,
                     lastSeen,
                     tenancy,
@@ -91,7 +94,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     machineType),
                 new InstanceSchedulingPolicyHistoryBuilder(
                     instanceId,
-                    schedulingPolicy));
+                    schedulingPolicy),
+                new InstanceImageHistoryBuilder(
+                    instanceId,
+                    image));
         }
 
         internal static InstanceHistoryBuilder ForDeletedInstance(
@@ -106,6 +112,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     instanceId,
                     null),
                 new InstanceSchedulingPolicyHistoryBuilder(
+                    instanceId,
+                    null),
+                new InstanceImageHistoryBuilder(
                     instanceId,
                     null));
         }

@@ -96,13 +96,20 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                     new[] { new PlacementHistory(
                         1,
                         new InstanceLocator("project-1", "zone-1", "instance-1"),
-                        new ImageLocator("project-1", "unknown-image"),
                         new []
                         {
                             new Placement(endDate.AddDays(-1), endDate)
                         }) },
                     new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>(),
-                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>()));
+                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>(),
+                    new Dictionary<ulong, ConfigurationHistory<IImageLocator>>()
+                    {
+                        { 1, new ConfigurationHistory<IImageLocator>(
+                            1,
+                            new ImageLocator("project-1", "unknown-image"),
+                            Enumerable.Empty<ConfigurationChange<IImageLocator>>()) 
+                        }
+                    }));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -145,13 +152,20 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                     new[] { new PlacementHistory(
                         1,
                         new InstanceLocator("project-1", "zone-1", "instance-1"),
-                        new ImageLocator("project-1", "unknown-image"),
                         new []
                         {
                             new Placement(endDate.AddDays(-1), endDate) // till end
                         }) },
                     new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>(),
-                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>()));
+                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>(),
+                    new Dictionary<ulong, ConfigurationHistory<IImageLocator>>()
+                    {
+                        { 1, new ConfigurationHistory<IImageLocator>(
+                            1,
+                            new ImageLocator("project-1", "unknown-image"),
+                            Enumerable.Empty<ConfigurationChange<IImageLocator>>())
+                        }
+                    }));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -193,13 +207,20 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                     new[] { new PlacementHistory(
                         1,
                         new InstanceLocator("project-1", "zone-1", "instance-1"),
-                        new ImageLocator("project-1", "unknown-image"),
                         new []
                         {
                             new Placement(endDate.AddDays(-2), endDate.AddDays(-1))
                         }) },
                     new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>(),
-                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>()));
+                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>(),
+                    new Dictionary<ulong, ConfigurationHistory<IImageLocator>>()
+                    {
+                        { 1, new ConfigurationHistory<IImageLocator>(
+                            1,
+                            new ImageLocator("project-1", "unknown-image"),
+                            Enumerable.Empty<ConfigurationChange<IImageLocator>>())
+                        }
+                    }));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
