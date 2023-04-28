@@ -89,7 +89,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 It.IsAny<DatasetLocator>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()), Times.Once);
-            bigQuery.Verify(a => a.CreateTableAsync(
+            bigQuery.Verify(a => a.CreateOrPatchTableAsync(
                 It.IsAny<TableLocator>(),
                 It.IsAny<IList<TableFieldSchema>>(),
                 It.IsAny<CancellationToken>()), Times.Exactly(3));

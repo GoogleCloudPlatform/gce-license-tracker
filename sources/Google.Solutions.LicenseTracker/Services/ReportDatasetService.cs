@@ -84,24 +84,6 @@ namespace Google.Solutions.LicenseTracker.Services
                         .CreateDatasetAsync(dataset, "License Tracking", cancellationToken)
                         .ConfigureAwait(false);
 
-                    foreach (var table in new Dictionary<string, IList<TableFieldSchema>>()
-                    {
-                        { TableNames.PlacementStartedEvents, TableSchemas.PlacementStartedEvents },
-                        { TableNames.PlacementEndedEvents, TableSchemas.PlacementEndedEvents},
-                        { TableNames.AnalyisRuns, TableSchemas.AnalysisRuns }
-                    })
-                    {
-                        await this.bigQueryAdapter
-                            .CreateTableAsync(
-                                new TableLocator(
-                                    dataset.ProjectId,
-                                    dataset.Name,
-                                    table.Key),
-                                table.Value,
-                                cancellationToken)
-                            .ConfigureAwait(false);
-                    }
-
                     this.logger.LogInformation("Dataset {name} created", dataset);
                 }
                 catch (Exception)
@@ -109,6 +91,35 @@ namespace Google.Solutions.LicenseTracker.Services
                     this.logger.LogError("Failed to create dataset {name}", dataset);
                     throw;
                 }
+            }
+
+            //
+            // Ensure that tables exist and their schema are up-to-date.
+            //
+            try
+            {
+                foreach (var table in new Dictionary<string, IList<TableFieldSchema>>()
+                    {
+                        { TableNames.PlacementStartedEvents, TableSchemas.PlacementStartedEvents },
+                        { TableNames.PlacementEndedEvents, TableSchemas.PlacementEndedEvents},
+                        { TableNames.AnalyisRuns, TableSchemas.AnalysisRuns }
+                    })
+                {
+                    await this.bigQueryAdapter
+                        .CreateOrPatchTableAsync(
+                            new TableLocator(
+                                dataset.ProjectId,
+                                dataset.Name,
+                                table.Key),
+                            table.Value,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception)
+            {
+                this.logger.LogError("Failed to create or update tables in dataset {name}", dataset);
+                throw;
             }
 
             //
