@@ -24,7 +24,7 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Config
     public class SchedulingPolicy
     {
         /// <summary>
-        /// Minimum number of CPUs, only set when CPU overcommit
+        /// Minimum number of vCPUs, only set when CPU overcommit
         /// is enabled.
         /// </summary>
         public uint? MinNodeCpus { get; }

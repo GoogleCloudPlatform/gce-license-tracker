@@ -224,7 +224,12 @@ namespace Google.Solutions.LicenseTracker.Services
                                         LicenseTypes.Spla => "SPLA",
                                         _ => null
                                     }
-                                }
+                                },
+                                { FieldSchemas.MachineType.Name, p.Machine?.Type?.Name },
+                                { FieldSchemas.VcpuCount.Name, p.Machine?.VirtualCpuCount },
+                                { FieldSchemas.Memory.Name, p.Machine?.MemoryMb },
+                                { FieldSchemas.MaintenancePolicy.Name, p.SchedulingPolicy?.MaintenancePolicy },
+                                { FieldSchemas.VcpuMinAllocated.Name, p.SchedulingPolicy?.MinNodeCpus },
                             })
                             .ToList(),
                         cancellationToken)
@@ -395,12 +400,56 @@ namespace Google.Solutions.LicenseTracker.Services
                 Type = "INT64",
                 Mode = "REQUIRED"
             };
+
+            public static readonly TableFieldSchema MachineType = new TableFieldSchema()
+            {
+                Name = "machine_type",
+                Type = "STRING",
+                Mode = "NULLABLE",
+                MaxLength = 128
+            };
+
+            public static readonly TableFieldSchema VcpuCount = new TableFieldSchema()
+            {
+                Name = "vcpu_count",
+                Type = "INT64",
+                Mode = "NULLABLE"
+            };
+
+            public static readonly TableFieldSchema VcpuMinAllocated = new TableFieldSchema()
+            {
+                Name = "vcpu_min_allocated",
+                Type = "INT64",
+                Mode = "NULLABLE"
+            };
+
+            public static readonly TableFieldSchema Memory = new TableFieldSchema()
+            {
+                Name = "memory_mb",
+                Type = "INT64",
+                Mode = "NULLABLE"
+            };
+
+            public static readonly TableFieldSchema MaintenancePolicy = new TableFieldSchema()
+            {
+                Name = "maintenance_policy",
+                Type = "STRING",
+                Mode = "NULLABLE",
+                MaxLength = 128
+            };
         }
 
         private static class TableSchemas
         {
+            //
+            // NB. All schema changes must be backward-compatible!
+            //
+
             public static readonly IList<TableFieldSchema> PlacementStartedEvents = new TableFieldSchema[]
             {
+                //
+                // v1.0.0
+                //
                 FieldSchemas.RunId,
                 FieldSchemas.InstanceId,
                 FieldSchemas.InstanceProjectId,
@@ -413,7 +462,16 @@ namespace Google.Solutions.LicenseTracker.Services
                 FieldSchemas.NodeType,
                 FieldSchemas.OperatingSystemFamily,
                 FieldSchemas.LicenseType,
-                FieldSchemas.License
+                FieldSchemas.License,
+
+                //
+                // v1.1.0
+                //
+                FieldSchemas.MachineType,
+                FieldSchemas.VcpuCount,
+                FieldSchemas.Memory,
+                FieldSchemas.MaintenancePolicy,
+                FieldSchemas.VcpuMinAllocated,
             };
 
             public static readonly IList<TableFieldSchema> PlacementEndedEvents = new TableFieldSchema[]
@@ -446,6 +504,11 @@ namespace Google.Solutions.LicenseTracker.Services
                   started.operating_system_family,
                   started.license,
                   started.license_type,    
+                  started.machine_type,
+                  started.vcpu_count,
+                  started.memory_mb,
+                  started.maintenance_policy,
+                  started.vcpu_min_allocated,
                   started.date AS start_date,
                   MIN(ended.date) AS end_date
                 FROM `{dataset}.analysis_runs` runs
@@ -462,7 +525,12 @@ namespace Google.Solutions.LicenseTracker.Services
                   started.node_type,
                   started.operating_system_family,
                   started.license,
-                  started.license_type";
+                  started.license_type,
+                  started.machine_type,
+                  started.vcpu_count,
+                  started.memory_mb,
+                  started.maintenance_policy,
+                  started.vcpu_min_allocated";
             }
 
             public static string NodeTypeDetails()
