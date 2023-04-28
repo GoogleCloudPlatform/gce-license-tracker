@@ -162,7 +162,6 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
 
             Assert.AreEqual(1, set.PlacementHistories.Count());
             Assert.AreEqual(123, set.PlacementHistories.First().InstanceId);
-            Assert.AreEqual(InstanceHistoryState.MissingTenancy, set.PlacementHistories.First().State);
         }
 
         [Test]

@@ -36,18 +36,14 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public IImageLocator? Image { get; }
 
-        public InstanceHistoryState State { get; }
-
         internal PlacementHistory(
             ulong instanceId,
             InstanceLocator? reference,
-            InstanceHistoryState state,
             IImageLocator? image,
             IEnumerable<Placement> placements)
         {
             this.InstanceId = instanceId;
             this.Reference = reference;
-            this.State = state;
             this.Image = image;
             this.Placements = placements;
         }
@@ -56,14 +52,5 @@ namespace Google.Solutions.LicenseTracker.Data.History
         {
             return $"{this.Reference} ({this.InstanceId})";
         }
-    }
-
-    public enum InstanceHistoryState
-    {
-        Complete,
-        MissingTenancy,
-        MissingName,
-        MissingImage,
-        MissingStopEvent
     }
 }

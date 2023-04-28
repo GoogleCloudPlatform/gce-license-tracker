@@ -51,8 +51,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
             ? this.placements.First().Tenancy
             : Tenancies.Unknown;
 
-        private bool missingStopEvent = false;
-
         //
         // Information accumulated as we go thru history.
         //
@@ -109,7 +107,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
                         "Instance {id} was placed, but never stopped, " +
                         "and yet is not running anymore. Flagging as defunct.",
                         this.InstanceId);
-                    this.missingStopEvent = true;
                     return;
                 }
             }
@@ -261,37 +258,8 @@ namespace Google.Solutions.LicenseTracker.Data.History
             return new PlacementHistory(
                 this.InstanceId,
                 this.reference,
-                this.State,
                 this.image,
                 sanitizedPlacements);
-        }
-
-        public InstanceHistoryState State
-        {
-            get
-            {
-                if (this.missingStopEvent)
-                {
-                    return InstanceHistoryState.MissingStopEvent;
-                }
-                else if (this.Tenancy == Tenancies.Unknown)
-                {
-                    return InstanceHistoryState.MissingTenancy;
-                }
-                else if (this.reference == null)
-                {
-                    return InstanceHistoryState.MissingName;
-                }
-                else if (this.Tenancy == Tenancies.SoleTenant && this.image == null)
-                {
-                    return InstanceHistoryState.MissingImage;
-                }
-                else
-                {
-                    return InstanceHistoryState.Complete;
-                }
-
-            }
         }
 
         //---------------------------------------------------------------------
