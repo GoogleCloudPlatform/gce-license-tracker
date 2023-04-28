@@ -36,10 +36,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
     /// for a given instance by analyzing events in reverse 
     /// chronological order.
     /// </summary>
-    public class MachineTypeConfigurationHistoryBuilder
+    public class InstanceMachineTypeHistoryBuilder
         : ConfigurationHistoryBuilderBase<MachineTypeLocator>
     {
-        public MachineTypeConfigurationHistoryBuilder(
+        public InstanceMachineTypeHistoryBuilder(
             ulong instanceId,
             MachineTypeLocator? currentMachineType)
             : base(instanceId, currentMachineType)

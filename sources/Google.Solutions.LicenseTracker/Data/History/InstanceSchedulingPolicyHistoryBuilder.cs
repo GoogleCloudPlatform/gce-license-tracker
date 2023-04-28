@@ -35,10 +35,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
     /// for a given instance by analyzing events in reverse 
     /// chronological order.
     /// </summary>
-    public class SchedulingPolicyHistoryBuilder
+    public class InstanceSchedulingPolicyHistoryBuilder
         : ConfigurationHistoryBuilderBase<SchedulingPolicy>
     {
-        public SchedulingPolicyHistoryBuilder(
+        public InstanceSchedulingPolicyHistoryBuilder(
             ulong instanceId, 
             SchedulingPolicy? currentMachineType) 
             : base(instanceId, currentMachineType)

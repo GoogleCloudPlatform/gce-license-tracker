@@ -31,13 +31,13 @@ namespace Google.Solutions.LicenseTracker.Data.History
     internal class InstanceHistoryBuilder
     {
         public PlacementHistoryBuilder Placements { get; }
-        public MachineTypeConfigurationHistoryBuilder MachineType { get; }
-        public SchedulingPolicyHistoryBuilder SchedulingPolicy { get; }
+        public InstanceMachineTypeHistoryBuilder MachineType { get; }
+        public InstanceSchedulingPolicyHistoryBuilder SchedulingPolicy { get; }
 
         private InstanceHistoryBuilder(
             PlacementHistoryBuilder placements, 
-            MachineTypeConfigurationHistoryBuilder machineType, 
-            SchedulingPolicyHistoryBuilder schedulingPolicy)
+            InstanceMachineTypeHistoryBuilder machineType, 
+            InstanceSchedulingPolicyHistoryBuilder schedulingPolicy)
         {
             this.Placements = placements;
             this.MachineType = machineType;
@@ -86,10 +86,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     serverId,
                     nodeType,
                     logger),
-                new MachineTypeConfigurationHistoryBuilder(
+                new InstanceMachineTypeHistoryBuilder(
                     instanceId,
                     machineType),
-                new SchedulingPolicyHistoryBuilder(
+                new InstanceSchedulingPolicyHistoryBuilder(
                     instanceId,
                     schedulingPolicy));
         }
@@ -102,10 +102,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 PlacementHistoryBuilder.ForDeletedInstance(
                     instanceId,
                     logger),
-                new MachineTypeConfigurationHistoryBuilder(
+                new InstanceMachineTypeHistoryBuilder(
                     instanceId,
                     null),
-                new SchedulingPolicyHistoryBuilder(
+                new InstanceSchedulingPolicyHistoryBuilder(
                     instanceId,
                     null));
         }
