@@ -130,7 +130,8 @@ namespace Google.Solutions.LicenseTracker.Services
             //
             // Find out which licenses were used.
             //
-            var licenses = await this.licenseService.LookupLicenseInfoAsync(
+            var licenses = await this.licenseService
+                .LookupLicenseInfoAsync(
                     instanceSetHistory.PlacementHistories
                         .Where(i => i.Image != null)
                         .Select(i => i.Image!),

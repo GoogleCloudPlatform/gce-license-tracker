@@ -170,7 +170,7 @@ namespace Google.Solutions.LicenseTracker.Services
                     .ProcessInstanceEventsAsync(
                         new[] { projectId },
                         builder.StartDate,
-                        new Processor(builder),
+                        builder,
                         cancellationToken)
                     .ConfigureAwait(false);
 
@@ -180,31 +180,6 @@ namespace Google.Solutions.LicenseTracker.Services
             }
 
             return builder.Build();
-        }
-
-        //---------------------------------------------------------------------
-        // IEventProcessor.
-        //---------------------------------------------------------------------
-
-        private class Processor : IEventProcessor
-        {
-            private readonly InstanceSetHistoryBuilder builder;
-
-            public Processor(InstanceSetHistoryBuilder builder)
-            {
-                this.builder = builder;
-            }
-
-            public EventOrder ExpectedOrder => this.builder.ExpectedOrder;
-
-            public IEnumerable<string> SupportedSeverities => this.builder.SupportedSeverities;
-
-            public IEnumerable<string> SupportedMethods => this.builder.SupportedMethods;
-
-            public void Process(EventBase e)
-            {
-                this.builder.Process(e);
-            }
         }
     }
 }

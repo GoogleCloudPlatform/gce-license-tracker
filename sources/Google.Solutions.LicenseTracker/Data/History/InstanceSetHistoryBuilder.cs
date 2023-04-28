@@ -44,10 +44,17 @@ namespace Google.Solutions.LicenseTracker.Data.History
         {
             if (this.instanceBuilders.TryGetValue(instanceId, out InstanceHistoryBuilder? builder))
             {
+                //
+                // We've seen this instance before.
+                //
                 return builder;
             }
             else
             {
+                //
+                // We haven't seen this instance before, so it must
+                // have been deleted.
+                //
                 var newBuilder = InstanceHistoryBuilder.ForDeletedInstance(
                     instanceId,
                     this.logger);

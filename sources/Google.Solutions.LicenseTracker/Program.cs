@@ -163,7 +163,8 @@ namespace Google.Solutions.LicenseTracker
             //
             // Analyze logs and create report.
             //
-            var report = await this.placementReportService.CreateReport(
+            var report = await this.placementReportService
+                .CreateReport(
                     projectsToAnalyze,
                     this.commandLineOptions.AnalysisWindowSizeInDays,
                     reportStartDateInclusive.Value,
