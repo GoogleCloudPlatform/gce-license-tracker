@@ -208,13 +208,13 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 this.StartDate,
                 this.EndDate,
                 this.instanceBuilders.Values
-                    .Select(b => b.BuildPlacementHistory(this.StartDate))
+                    .Select(b => b.Placements.Build(this.StartDate))
                     .ToList(),
                 this.instanceBuilders.Values
-                    .Select(b => b.BuildMachineTypeHistory())
+                    .Select(b => b.MachineType.Build())
                     .ToDictionary(h => h.InstanceId, h => h),
                 this.instanceBuilders.Values
-                    .Select(b => b.BuildSchedulingPolicyHistory())
+                    .Select(b => b.SchedulingPolicy.Build())
                     .ToDictionary(h => h.InstanceId, h => h));
         }
 

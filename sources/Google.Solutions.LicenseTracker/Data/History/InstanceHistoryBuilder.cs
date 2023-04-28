@@ -30,33 +30,18 @@ namespace Google.Solutions.LicenseTracker.Data.History
 {
     internal class InstanceHistoryBuilder
     {
-        private readonly PlacementHistoryBuilder placementHistoryBuilder;
-        private readonly MachineTypeConfigurationHistoryBuilder machineTypeConfigurationHistoryBuilder;
-        private readonly SchedulingPolicyHistoryBuilder schedulingPolicyHistoryBuilder;
+        public PlacementHistoryBuilder Placements { get; }
+        public MachineTypeConfigurationHistoryBuilder MachineType { get; }
+        public SchedulingPolicyHistoryBuilder SchedulingPolicy { get; }
 
         private InstanceHistoryBuilder(
-            PlacementHistoryBuilder placementHistoryBuilder, 
-            MachineTypeConfigurationHistoryBuilder machineTypeConfigurationHistoryBuilder,
-            SchedulingPolicyHistoryBuilder schedulingPolicyHistoryBuilder)
+            PlacementHistoryBuilder placements, 
+            MachineTypeConfigurationHistoryBuilder machineType, 
+            SchedulingPolicyHistoryBuilder schedulingPolicy)
         {
-            this.placementHistoryBuilder = placementHistoryBuilder;
-            this.machineTypeConfigurationHistoryBuilder = machineTypeConfigurationHistoryBuilder;
-            this.schedulingPolicyHistoryBuilder = schedulingPolicyHistoryBuilder;
-        }
-
-        public PlacementHistory BuildPlacementHistory(DateTime startDate)
-        {
-            return this.placementHistoryBuilder.Build(startDate);
-        }
-
-        public ConfigurationHistory<MachineTypeLocator> BuildMachineTypeHistory()
-        {
-            return this.machineTypeConfigurationHistoryBuilder.Build();
-        }
-
-        public ConfigurationHistory<SchedulingPolicy> BuildSchedulingPolicyHistory()
-        {
-            return this.schedulingPolicyHistoryBuilder.Build();
+            this.Placements = placements;
+            this.MachineType = machineType;
+            this.SchedulingPolicy = schedulingPolicy;
         }
 
         internal void ProcessEvent(EventBase e)
@@ -65,9 +50,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
             // Let all builders process the event so that they can construct
             // their individual perspective of history.
             //
-            this.placementHistoryBuilder.ProcessEvent(e);
-            this.machineTypeConfigurationHistoryBuilder.ProcessEvent(e);
-            this.schedulingPolicyHistoryBuilder.ProcessEvent(e);
+            this.Placements.ProcessEvent(e);
+            this.MachineType.ProcessEvent(e);
+            this.SchedulingPolicy.ProcessEvent(e);
         }
 
         //---------------------------------------------------------------------
