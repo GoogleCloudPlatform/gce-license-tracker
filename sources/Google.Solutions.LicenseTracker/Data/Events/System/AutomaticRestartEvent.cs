@@ -24,7 +24,7 @@ using System.Diagnostics;
 
 namespace Google.Solutions.LicenseTracker.Data.Events.System
 {
-    public class AutomaticRestartEvent : SystemEventBase
+    public class AutomaticRestartEvent : SystemEventBase, IInstanceStateChangeEvent
     {
         public const string Method = "compute.instances.automaticRestart";
 
@@ -38,5 +38,13 @@ namespace Google.Solutions.LicenseTracker.Data.Events.System
             return record.IsSystemEvent &&
                 record.ProtoPayload?.MethodName == Method;
         }
+
+        //---------------------------------------------------------------------
+        // IInstanceStateChangeEvent.
+        //---------------------------------------------------------------------
+
+        public bool IsStartingInstance => true;
+
+        public bool IsTerminatingInstance => false;
     }
 }
