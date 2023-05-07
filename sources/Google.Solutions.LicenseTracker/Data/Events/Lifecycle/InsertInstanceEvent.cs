@@ -36,6 +36,7 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
         public MachineTypeLocator? MachineType { get; }
 
         public SchedulingPolicy? SchedulingPolicy { get; }
+        public IDictionary<string, string> Labels { get; } = new Dictionary<string, string>();
 
         internal InsertInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
@@ -92,6 +93,18 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
                     this.SchedulingPolicy = new SchedulingPolicy(
                         schedulingPolicy.Value<string>("onHostMaintenance") ?? "TERMINATE",
                         schedulingPolicy.Value<uint?>("minNodeCpus"));
+                }
+
+                if (request?["labels"] is var labels && labels != null)
+                {
+                    this.Labels = labels
+                        .OfType<JObject>()
+                        .Select(item => new {
+                            Key = (string?)item.PropertyValues().ElementAtOrDefault(0),
+                            Value = (string?)item.PropertyValues().ElementAtOrDefault(1)
+                        })
+                        .Where(item => item.Key != null && item.Value != null)
+                        .ToDictionary(kvp => kvp.Key!, kvp => kvp.Value!);
                 }
             }
         }

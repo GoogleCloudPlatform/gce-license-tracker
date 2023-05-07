@@ -22,6 +22,7 @@
 using Google.Apis.Compute.v1.Data;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Data.Logs;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,21 +38,38 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Config
 
         public MachineTypeLocator? MachineType { get; }
         public SchedulingPolicy? SchedulingPolicy { get; }
+        public IDictionary<string, string> Labels { get; } = new Dictionary<string, string>();
 
         public UpdateInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
-            if (logRecord.ProtoPayload?.Request?.Value<string>("machineType") is var machineType &&
-                !string.IsNullOrEmpty(machineType))
+            var request = logRecord.ProtoPayload?.Request;
+            if (request != null)
             {
-                this.MachineType = MachineTypeLocator.FromString(machineType);
-            }
+                if (request?.Value<string>("machineType") is var machineType &&
+                    !string.IsNullOrEmpty(machineType))
+                {
+                    this.MachineType = MachineTypeLocator.FromString(machineType);
+                }
 
-            if (logRecord.ProtoPayload?.Request?["scheduling"] is var schedulingPolicy &&
-                schedulingPolicy != null)
-            {
-                this.SchedulingPolicy = new SchedulingPolicy(
-                    schedulingPolicy.Value<string>("onHostMaintenance") ?? "TERMINATE",
-                    schedulingPolicy.Value<uint?>("minNodeCpus"));
+                if (request?["scheduling"] is var schedulingPolicy &&
+                    schedulingPolicy != null)
+                {
+                    this.SchedulingPolicy = new SchedulingPolicy(
+                        schedulingPolicy.Value<string>("onHostMaintenance") ?? "TERMINATE",
+                        schedulingPolicy.Value<uint?>("minNodeCpus"));
+                }
+
+                if (request?["labels"] is var labels && labels != null)
+                {
+                    this.Labels = labels
+                        .OfType<JObject>()
+                        .Select(item => new {
+                            Key = (string?)item.PropertyValues().ElementAtOrDefault(0),
+                            Value = (string?)item.PropertyValues().ElementAtOrDefault(1)
+                        })
+                        .Where(item => item.Key != null && item.Value != null)
+                        .ToDictionary(kvp => kvp.Key!, kvp => kvp.Value!);
+                }
             }
         }
 

@@ -91,6 +91,15 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                         'preemptible': false,
                         'provisioningModel': 'STANDARD'
                       },
+                      'labels': [
+                        {
+                          'key': 'label-1',
+                          'value': 'value-1'
+                        },
+                        {
+                          'key': 'label-2',
+                          'value': ''
+                        }
                       'labelFingerprint': '�e�J�|�#',
                       'deletionProtection': false,
                       'displayDevice': {
@@ -172,6 +181,13 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                 "MIGRATE",
                 e.SchedulingPolicy?.MaintenancePolicy);
             Assert.IsNull(e.SchedulingPolicy?.MinNodeCpus);
+
+            CollectionAssert.AreEqual(
+                new[] { "label-1", "label-2" },
+                e.Labels.Keys);
+
+            Assert.AreEqual("value-1", e.Labels["label-1"]);
+            Assert.AreEqual("", e.Labels["label-2"]);
         }
 
         [Test]
@@ -303,6 +319,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                 "TERMINATE",
                 e.SchedulingPolicy?.MaintenancePolicy);
             Assert.AreEqual(4, e.SchedulingPolicy?.MinNodeCpus);
+            Assert.AreEqual(0, e.Labels.Count());
         }
 
         [Test]
