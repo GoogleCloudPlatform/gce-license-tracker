@@ -25,7 +25,7 @@ using Google.Solutions.LicenseTracker.Data.Logs;
 using NUnit.Framework;
 using System;
 
-namespace Google.Solutions.LicenseTracker.Data.Test.Events.System
+namespace Google.Solutions.LicenseTracker.Test.Data.Events.System
 {
     [TestFixture]
     public class TestNotifyInstanceLocationEvent 

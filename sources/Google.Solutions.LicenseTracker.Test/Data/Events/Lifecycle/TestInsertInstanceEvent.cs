@@ -25,7 +25,7 @@ using Google.Solutions.LicenseTracker.Data.Events.Lifecycle;
 using Google.Solutions.LicenseTracker.Data.Logs;
 using NUnit.Framework;
 
-namespace Google.Solutions.LicenseTracker.Data.Test.Events.Lifecycle
+namespace Google.Solutions.LicenseTracker.Test.Data.Events.Lifecycle
 {
     [TestFixture]
     public class TestInsertInstanceEvent 

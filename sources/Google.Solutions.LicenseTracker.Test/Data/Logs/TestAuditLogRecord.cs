@@ -24,7 +24,7 @@ using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using System;
 
-namespace Google.Solutions.LicenseTracker.Data.Test.Logs
+namespace Google.Solutions.LicenseTracker.Test.Data.Logs
 {
     [TestFixture]
     public class TestAuditLogRecord 
