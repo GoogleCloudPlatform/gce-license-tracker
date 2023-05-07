@@ -326,6 +326,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public void ProcessEvent(EventBase e)
         {
+            // TODO: Check severity
             if (e is NotifyInstanceLocationEvent notifyLocation && notifyLocation.ServerId != null)
             {
                 OnSetPlacement(
