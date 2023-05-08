@@ -94,7 +94,8 @@ namespace Google.Solutions.LicenseTracker.Data.History
             DateTime lastSeen,
             Tenancies tenancy,
             string? serverId,
-            NodeTypeLocator? nodeType)
+            NodeTypeLocator? nodeType,
+            IDictionary<string, string>? labels)
         {
             Debug.Assert(!tenancy.IsFlagCombination());
             this.instanceBuilders[instanceId] = InstanceHistoryBuilder.ForExistingInstance(
@@ -108,6 +109,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                 tenancy,
                 serverId,
                 nodeType,
+                labels,
                 this.logger);
         }
 
@@ -198,7 +200,8 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     this.EndDate,
                     tenancy,
                     serverId,
-                    nodeType);
+                    nodeType,
+                    instance.Labels);
             }
         }
 
@@ -218,6 +221,9 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     .ToDictionary(h => h.InstanceId, h => h),
                 this.instanceBuilders.Values
                     .Select(b => b.Image.Build())
+                    .ToDictionary(h => h.InstanceId, h => h),
+                this.instanceBuilders.Values
+                    .Select(b => b.Labels.Build())
                     .ToDictionary(h => h.InstanceId, h => h));
         }
 
@@ -225,10 +231,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
         // IEventProcessor
         //---------------------------------------------------------------------
 
-        //
-        // NB. Error events are not relevant for building the history, we only need
-        // informational records.
-        //
+            //
+            // NB. Error events are not relevant for building the history, we only need
+            // informational records.
+            //
 
         public EventOrder ExpectedOrder => EventOrder.NewestFirst;
 

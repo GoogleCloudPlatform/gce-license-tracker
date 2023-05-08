@@ -48,20 +48,19 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public override void ProcessEvent(EventBase e)
         {
-            // TODO: Check severity
-            if (e is InsertInstanceEvent insert && insert.MachineType != null)
+            if (e is InsertInstanceEvent insert && !insert.IsError && insert.MachineType != null)
             {
                 this.changes.AddLast(new ConfigurationChange<MachineTypeLocator>(
                     insert.Timestamp,
                     insert.MachineType));
             }
-            else if (e is SetMachineTypeEvent setType && setType.MachineType != null)
+            else if (e is SetMachineTypeEvent setType && !setType.IsError && setType.MachineType != null)
             {
                 this.changes.AddLast(new ConfigurationChange<MachineTypeLocator>(
                     setType.Timestamp,
                     setType.MachineType));
             }
-            else if (e is UpdateInstanceEvent update && update.MachineType != null)
+            else if (e is UpdateInstanceEvent update && !update.IsError && update.MachineType != null)
             {
                 this.changes.AddLast(new ConfigurationChange<MachineTypeLocator>(
                     update.Timestamp,

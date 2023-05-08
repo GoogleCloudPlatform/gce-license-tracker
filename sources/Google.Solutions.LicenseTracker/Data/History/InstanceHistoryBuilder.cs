@@ -34,17 +34,20 @@ namespace Google.Solutions.LicenseTracker.Data.History
         public InstanceMachineTypeHistoryBuilder MachineType { get; }
         public InstanceSchedulingPolicyHistoryBuilder SchedulingPolicy { get; }
         public InstanceImageHistoryBuilder Image { get; }
+        public InstanceLabelsHistoryBuilder Labels { get; }
 
         private InstanceHistoryBuilder(
             PlacementHistoryBuilder placements, 
-            InstanceMachineTypeHistoryBuilder machineType, 
+            InstanceMachineTypeHistoryBuilder machineType,
             InstanceSchedulingPolicyHistoryBuilder schedulingPolicy,
-            InstanceImageHistoryBuilder image)
+            InstanceImageHistoryBuilder image,
+            InstanceLabelsHistoryBuilder labels)
         {
             this.Placements = placements;
             this.MachineType = machineType;
             this.SchedulingPolicy = schedulingPolicy;
             this.Image = image;
+            this.Labels = labels;
         }
 
         internal void ProcessEvent(EventBase e)
@@ -57,6 +60,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             this.MachineType.ProcessEvent(e);
             this.SchedulingPolicy.ProcessEvent(e);
             this.Image.ProcessEvent(e);
+            this.Labels.ProcessEvent(e);
         }
 
         //---------------------------------------------------------------------
@@ -74,6 +78,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             Tenancies tenancy,
             string? serverId,
             NodeTypeLocator? nodeType,
+            IDictionary<string, string>? labels,
             ILogger logger)
         {
             Debug.Assert(!tenancy.IsFlagCombination());
@@ -97,7 +102,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     schedulingPolicy),
                 new InstanceImageHistoryBuilder(
                     instanceId,
-                    image));
+                    image),
+                new InstanceLabelsHistoryBuilder(
+                    instanceId,
+                    labels));
         }
 
         internal static InstanceHistoryBuilder ForDeletedInstance(
@@ -116,7 +124,10 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     null),
                 new InstanceImageHistoryBuilder(
                     instanceId,
-                    null));
+                    null),
+                new InstanceLabelsHistoryBuilder(
+                    instanceId,
+                    new Dictionary<string, string>()));
         }
     }
 }

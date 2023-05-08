@@ -326,7 +326,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public void ProcessEvent(EventBase e)
         {
-            // TODO: Check severity
             if (e is NotifyInstanceLocationEvent notifyLocation && notifyLocation.ServerId != null)
             {
                 OnSetPlacement(
@@ -334,7 +333,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     notifyLocation.NodeType,
                     notifyLocation.Timestamp);
             }
-            else if (e is InsertInstanceEvent insert)
+            else if (e is InsertInstanceEvent insert && !insert.IsError)
             {
                 OnInsert(insert.Timestamp, insert.InstanceReference!);
             }

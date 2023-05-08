@@ -115,9 +115,10 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                 new InstanceLocator("project-1", "asia-southeast1-b", "instance-1"),
                 e.InstanceReference);
 
+            Assert.IsNotNull(e.Labels);
             CollectionAssert.AreEqual(
                 new[] { "label-1", "label-2" },
-                e.Labels.Keys);
+                e.Labels!.Keys);
 
             Assert.AreEqual("value-1", e.Labels["label-1"]);
             Assert.AreEqual("value-2", e.Labels["label-2"]);
@@ -198,8 +199,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
             Assert.AreEqual(
                 new InstanceLocator("project-1", "asia-southeast1-b", "instance-1"),
                 e.InstanceReference);
-
-            Assert.AreEqual(0, e.Labels.Count());
+            Assert.IsNull(e.Labels);
         }
 
         [Test]
@@ -254,7 +254,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                 new InstanceLocator("project-1", "asia-southeast1-b", "instance-1"),
                 e.InstanceReference);
 
-            Assert.AreEqual(0, e.Labels.Count());
+            Assert.IsNull(e.Labels);
         }
 
         [Test]
@@ -341,7 +341,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                 new InstanceLocator("project-1", "asia-southeast1-b", "instance-1"),
                 e.InstanceReference);
 
-            Assert.AreEqual(2, e.Labels.Count());
+            Assert.IsNotNull(e.Labels);
+            Assert.AreEqual(2, e.Labels!.Count());
         }
     }
 }

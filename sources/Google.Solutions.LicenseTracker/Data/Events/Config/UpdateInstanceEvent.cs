@@ -38,7 +38,7 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Config
 
         public MachineTypeLocator? MachineType { get; }
         public SchedulingPolicy? SchedulingPolicy { get; }
-        public IDictionary<string, string> Labels { get; } = new Dictionary<string, string>();
+        public IDictionary<string, string>? Labels { get; }
 
         public UpdateInstanceEvent(LogRecord logRecord) : base(logRecord)
         {

@@ -230,6 +230,11 @@ namespace Google.Solutions.LicenseTracker.Services
                                 { FieldSchemas.Memory.Name, p.Machine?.MemoryMb },
                                 { FieldSchemas.MaintenancePolicy.Name, p.SchedulingPolicy?.MaintenancePolicy },
                                 { FieldSchemas.VcpuMinAllocated.Name, p.SchedulingPolicy?.MinNodeCpus },
+                                { FieldSchemas.Labels.Name, p.Labels
+                                    .EnsureNotNull()
+                                    .Select(kvp => new { key = kvp.Key, value = kvp.Value })
+                                    .ToArray()
+                                }
                             })
                             .ToList(),
                         cancellationToken)
@@ -437,6 +442,30 @@ namespace Google.Solutions.LicenseTracker.Services
                 Mode = "NULLABLE",
                 MaxLength = 128
             };
+
+            public static readonly TableFieldSchema Labels = new TableFieldSchema()
+            {
+                Name = "labels",
+                Type = "STRUCT",
+                Mode = "REPEATED",
+                Fields = new[]
+                {
+                    new TableFieldSchema()
+                    {
+                        Name = "key",
+                        Type = "STRING",
+                        Mode = "NULLABLE",
+                        MaxLength = 128
+                    },
+                    new TableFieldSchema()
+                    {
+                        Name = "value",
+                        Type = "STRING",
+                        Mode = "NULLABLE",
+                        MaxLength = 256
+                    }
+                }
+            };
         }
 
         private static class TableSchemas
@@ -472,6 +501,7 @@ namespace Google.Solutions.LicenseTracker.Services
                 FieldSchemas.Memory,
                 FieldSchemas.MaintenancePolicy,
                 FieldSchemas.VcpuMinAllocated,
+                FieldSchemas.Labels,
             };
 
             public static readonly IList<TableFieldSchema> PlacementEndedEvents = new TableFieldSchema[]

@@ -100,6 +100,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                           'key': 'label-2',
                           'value': ''
                         }
+                      ],
                       'labelFingerprint': '�e�J�|�#',
                       'deletionProtection': false,
                       'displayDevice': {
@@ -182,9 +183,10 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                 e.SchedulingPolicy?.MaintenancePolicy);
             Assert.IsNull(e.SchedulingPolicy?.MinNodeCpus);
 
+            Assert.IsNotNull(e.Labels);
             CollectionAssert.AreEqual(
                 new[] { "label-1", "label-2" },
-                e.Labels.Keys);
+                e.Labels!.Keys);
 
             Assert.AreEqual("value-1", e.Labels["label-1"]);
             Assert.AreEqual("", e.Labels["label-2"]);
@@ -319,7 +321,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                 "TERMINATE",
                 e.SchedulingPolicy?.MaintenancePolicy);
             Assert.AreEqual(4, e.SchedulingPolicy?.MinNodeCpus);
-            Assert.AreEqual(0, e.Labels.Count());
+            Assert.IsNull(e.Labels);
         }
 
         [Test]

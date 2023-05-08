@@ -36,7 +36,7 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
         public MachineTypeLocator? MachineType { get; }
 
         public SchedulingPolicy? SchedulingPolicy { get; }
-        public IDictionary<string, string> Labels { get; } = new Dictionary<string, string>();
+        public IDictionary<string, string>? Labels { get; }
 
         internal InsertInstanceEvent(LogRecord logRecord) : base(logRecord)
         {

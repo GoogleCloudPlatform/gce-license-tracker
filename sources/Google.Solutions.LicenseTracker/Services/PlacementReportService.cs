@@ -184,10 +184,14 @@ namespace Google.Solutions.LicenseTracker.Services
                     Machine = machineType != null
                         ? machineInfoByType.TryGet(machineType)
                         : null,
-                    SchedulingPolicy = instanceSetHistory ?
+                    SchedulingPolicy = instanceSetHistory?
                         .SchedulingPolicyHistories
                         .TryGet(i.InstanceId)?
-                        .GetHistoricValue(p.From)
+                        .GetHistoricValue(p.From),
+                    Labels = instanceSetHistory?
+                        .LabelHistories
+                        .TryGet(i.InstanceId)?
+                        .GetHistoricValue(p.From),
                 };
             }
         }
@@ -253,5 +257,10 @@ namespace Google.Solutions.LicenseTracker.Services
         /// Scheduling policy, if known.
         /// </summary>
         public SchedulingPolicy? SchedulingPolicy { get; init; }
+
+        /// <summary>
+        /// Labels, if known.
+        /// </summary>
+        public IDictionary<string, string>? Labels { get; init; }
     }
 }

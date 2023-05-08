@@ -65,5 +65,14 @@ namespace Google.Solutions.LicenseTracker.Util
                 yield return chunk;
             }
         }
+
+        public static string ToShortString<K, V>(
+            this IDictionary<K, V> dict)
+        {
+            var items = dict
+                .EnsureNotNull()
+                .Select(kvp => kvp.Key + "=" + kvp.Value);
+            return "{" + string.Join(", ", items) + "}";
+        }
     }
 }

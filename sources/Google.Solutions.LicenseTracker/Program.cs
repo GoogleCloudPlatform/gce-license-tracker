@@ -193,7 +193,7 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.StartedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}, Labels: {9}",
                         placement.InstanceId,
                         placement.Instance?.Name,
                         placement.Placement.ServerId ?? "fleet",
@@ -202,7 +202,8 @@ namespace Google.Solutions.LicenseTracker
                         placement.License?.OperatingSystem,
                         placement.License?.LicenseType,
                         placement.Machine?.ToString() ?? "-",
-                        placement.SchedulingPolicy?.ToString() ?? "-");
+                        placement.SchedulingPolicy?.ToString() ?? "-",
+                        placement.Labels?.ToShortString());
                 }
 
                 Console.WriteLine(new String('-', 80));
@@ -212,7 +213,7 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.EndedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}, Labels: {9}",
                         placement.InstanceId,
                         placement.Instance?.Name,
                         placement.Placement.ServerId ?? "fleet",
@@ -221,7 +222,8 @@ namespace Google.Solutions.LicenseTracker
                         placement.License?.OperatingSystem,
                         placement.License?.LicenseType,
                         placement.Machine?.ToString() ?? "-",
-                        placement.SchedulingPolicy?.ToString() ?? "-");
+                        placement.SchedulingPolicy?.ToString() ?? "-",
+                        placement.Labels?.ToShortString());
                 }
             }
         }

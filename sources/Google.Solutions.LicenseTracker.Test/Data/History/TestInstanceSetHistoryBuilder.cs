@@ -90,6 +90,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                 DateTime.UtcNow,
                 Tenancies.Fleet,
                 null,
+                null,
                 null);
 
             var set = b.Build();
@@ -121,7 +122,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                 DateTime.UtcNow,
                 Tenancies.SoleTenant,
                 "server-1",
-                new NodeTypeLocator("project-1", "zone-1", "type-1"));
+                new NodeTypeLocator("project-1", "zone-1", "type-1"),
+                null);
 
             var set = b.Build();
 

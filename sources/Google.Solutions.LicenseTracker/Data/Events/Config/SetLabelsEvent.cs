@@ -34,7 +34,7 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Config
     {
         public const string Method = "v1.compute.instances.setLabels";
 
-        public IDictionary<string, string> Labels { get; }
+        public IDictionary<string, string>? Labels { get; }
 
         public SetLabelsEvent(LogRecord logRecord) : base(logRecord)
         {
@@ -49,10 +49,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Config
                     })
                     .Where(item => item.Key != null && item.Value != null)
                     .ToDictionary(kvp => kvp.Key!, kvp => kvp.Value!);
-            }
-            else
-            {
-                this.Labels = new Dictionary<string, string>();
             }
         }
 

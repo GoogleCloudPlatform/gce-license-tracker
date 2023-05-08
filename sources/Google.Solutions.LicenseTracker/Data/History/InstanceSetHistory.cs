@@ -41,13 +41,16 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public IDictionary<ulong, ConfigurationHistory<IImageLocator>> ImageHistories { get; }
 
+        public IDictionary<ulong, ConfigurationHistory<IDictionary<string, string>>> LabelHistories { get; }
+
         internal InstanceSetHistory(
             DateTime startDate,
             DateTime endDate,
             IEnumerable<PlacementHistory> instances,
             IDictionary<ulong, ConfigurationHistory<MachineTypeLocator>> machineTypeHistories,
             IDictionary<ulong, ConfigurationHistory<SchedulingPolicy>> schedulingPolicyHistories,
-            IDictionary<ulong, ConfigurationHistory<IImageLocator>> imageHistories)
+            IDictionary<ulong, ConfigurationHistory<IImageLocator>> imageHistories,
+            IDictionary<ulong, ConfigurationHistory<IDictionary<string, string>>> labelHistories)
         {
             this.StartDate = startDate;
             this.EndDate = endDate;
@@ -55,6 +58,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
             this.MachineTypeHistories = machineTypeHistories;
             this.SchedulingPolicyHistories = schedulingPolicyHistories;
             this.ImageHistories = imageHistories;
+            this.LabelHistories = labelHistories;
         }
     }
 }

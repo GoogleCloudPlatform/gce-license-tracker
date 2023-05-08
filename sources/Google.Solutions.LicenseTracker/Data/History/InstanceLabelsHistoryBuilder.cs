@@ -22,6 +22,7 @@
 using Google.Solutions.LicenseTracker.Data.Events;
 using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.Events.Lifecycle;
+using Google.Solutions.LicenseTracker.Data.Locator;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,39 +32,39 @@ using System.Threading.Tasks;
 namespace Google.Solutions.LicenseTracker.Data.History
 {
     /// <summary>
-    /// Reconstructs the history of scheduling configurations
+    /// Reconstructs the history of machine type configurations
     /// for a given instance by analyzing events in reverse 
     /// chronological order.
     /// </summary>
-    public class InstanceSchedulingPolicyHistoryBuilder
-        : ConfigurationHistoryBuilderBase<SchedulingPolicy>
+    public class InstanceLabelsHistoryBuilder
+        : ConfigurationHistoryBuilderBase<IDictionary<string, string>>
     {
-        public InstanceSchedulingPolicyHistoryBuilder(
-            ulong instanceId, 
-            SchedulingPolicy? currentMachineType) 
-            : base(instanceId, currentMachineType)
+        public InstanceLabelsHistoryBuilder(
+            ulong instanceId,
+            IDictionary<string, string>? currentLabels)
+            : base(instanceId, currentLabels)
         {
         }
 
         public override void ProcessEvent(EventBase e)
         {
-            if (e is InsertInstanceEvent insert && !insert.IsError && insert.SchedulingPolicy != null)
+            if (e is InsertInstanceEvent insert && !insert.IsError && insert.Labels != null)
             {
-                this.changes.AddLast(new ConfigurationChange<SchedulingPolicy>(
+                this.changes.AddLast(new ConfigurationChange<IDictionary<string, string>>(
                     insert.Timestamp,
-                    insert.SchedulingPolicy));
+                    insert.Labels));
             }
-            else if (e is SetSchedulingEvent setType && !setType.IsError && setType.SchedulingPolicy != null)
+            else if (e is SetLabelsEvent setType && !setType.IsError && setType.Labels != null)
             {
-                this.changes.AddLast(new ConfigurationChange<SchedulingPolicy>(
+                this.changes.AddLast(new ConfigurationChange<IDictionary<string, string>>(
                     setType.Timestamp,
-                    setType.SchedulingPolicy));
+                    setType.Labels));
             }
-            else if (e is UpdateInstanceEvent update && !update.IsError && update.SchedulingPolicy != null)
+            else if (e is UpdateInstanceEvent update && !update.IsError && update.Labels != null)
             {
-                this.changes.AddLast(new ConfigurationChange<SchedulingPolicy>(
+                this.changes.AddLast(new ConfigurationChange<IDictionary<string, string>>(
                     update.Timestamp,
-                    update.SchedulingPolicy));
+                    update.Labels));
             }
             else
             {
