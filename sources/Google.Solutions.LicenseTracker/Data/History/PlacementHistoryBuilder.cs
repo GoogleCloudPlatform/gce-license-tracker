@@ -259,27 +259,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
         // Lifecycle events that construct the history.
         //---------------------------------------------------------------------
 
-        public void OnInsert(DateTime date, InstanceLocator reference)
-        {
-            Debug.Assert(date <= this.lastEventDate);
-            this.lastEventDate = date;
-
-            //
-            // NB. We might get multiple calls for a single instance, each providing some, but
-            // potentially not all information.
-            //
-            if (this.reference == null)
-            {
-                this.reference = reference;
-            }
-
-            //
-            // Register Fleet placement - this might be merged with an existing
-            // SoleTenant placement if there has been one registerd before.
-            //
-            AddPlacement(Tenancies.Fleet, null, null, date);
-        }
-
         public void OnStart(DateTime date, InstanceLocator reference)
         {
             Debug.Assert(date <= this.lastEventDate);
@@ -332,10 +311,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
                     notifyLocation.ServerId,
                     notifyLocation.NodeType,
                     notifyLocation.Timestamp);
-            }
-            else if (e is InsertInstanceEvent insert && !insert.IsError)
-            {
-                OnInsert(insert.Timestamp, insert.InstanceReference!);
             }
             else if (e is IInstanceStateChangeEvent stateChange)
             {

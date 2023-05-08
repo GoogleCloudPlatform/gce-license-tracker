@@ -33,5 +33,9 @@ namespace Google.Solutions.LicenseTracker.Data.Events
         {
             Debug.Assert(!this.IsError || logRecord.ProtoPayload?.Status != null);
         }
+
+        public bool IsFirst => this.LogRecord.Operation?.IsFirst ?? false;
+
+        public bool IsLast => this.LogRecord.Operation?.IsLast ?? false;
     }
 }

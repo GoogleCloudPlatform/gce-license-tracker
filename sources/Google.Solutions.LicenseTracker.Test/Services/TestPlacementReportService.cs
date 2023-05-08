@@ -109,7 +109,8 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                             new ImageLocator("project-1", "unknown-image"),
                             Enumerable.Empty<ConfigurationChange<IImageLocator>>()) 
                         }
-                    }));
+                    },
+                    new Dictionary<ulong, ConfigurationHistory<IDictionary<string, string>>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -165,7 +166,8 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                             new ImageLocator("project-1", "unknown-image"),
                             Enumerable.Empty<ConfigurationChange<IImageLocator>>())
                         }
-                    }));
+                    },
+                    new Dictionary<ulong, ConfigurationHistory<IDictionary<string, string>>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -220,7 +222,8 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                             new ImageLocator("project-1", "unknown-image"),
                             Enumerable.Empty<ConfigurationChange<IImageLocator>>())
                         }
-                    }));
+                    },
+                    new Dictionary<ulong, ConfigurationHistory<IDictionary<string, string>>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,

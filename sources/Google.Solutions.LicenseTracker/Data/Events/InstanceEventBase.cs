@@ -57,9 +57,22 @@ namespace Google.Solutions.LicenseTracker.Data.Events
         }
 
         public virtual ulong InstanceId
-            => string.IsNullOrEmpty(base.LogRecord.Resource?.Labels?["instance_id"])
-                ? 0
-                : ulong.Parse(base.LogRecord.Resource.Labels["instance_id"]);
+        {
+            get
+            {
+                var labels = base.LogRecord.Resource?.Labels;
+                if (labels != null && 
+                    labels.TryGetValue("instance_id", out var idString) &&
+                    ulong.TryParse(idString, out var id))
+                {
+                    return id;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
 
         protected InstanceEventBase(LogRecord logRecord)
             : base(logRecord)

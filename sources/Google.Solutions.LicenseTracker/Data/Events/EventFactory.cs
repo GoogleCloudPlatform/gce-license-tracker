@@ -53,6 +53,7 @@ namespace Google.Solutions.LicenseTracker.Data.Events
                 { ResumeInstanceEvent.Method, rec => new ResumeInstanceEvent(rec) },
                 { ResumeInstanceEvent.BetaMethod, rec => new ResumeInstanceEvent(rec) },
                 { ResumeInstanceEvent.AlphaMethod, rec => new ResumeInstanceEvent(rec) },
+                { BulkInsertInstanceEvent.Method, rec => new BulkInsertInstanceEvent(rec) },
 
                 //
                 // Config events.
