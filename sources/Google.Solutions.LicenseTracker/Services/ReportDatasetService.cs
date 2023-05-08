@@ -210,6 +210,7 @@ namespace Google.Solutions.LicenseTracker.Services
                                     } },
                                 { FieldSchemas.ServerId.Name, p.Placement.ServerId },
                                 { FieldSchemas.NodeType.Name, p.Placement.NodeType?.Name },
+                                { FieldSchemas.NodeProjectId.Name, p.Placement.NodeType?.ProjectId },
                                 { FieldSchemas.OperatingSystemFamily.Name, p.License?.OperatingSystem switch
                                     {
                                         OperatingSystemTypes.Windows => "WIN",
@@ -466,6 +467,14 @@ namespace Google.Solutions.LicenseTracker.Services
                     }
                 }
             };
+
+            public static readonly TableFieldSchema NodeProjectId = new TableFieldSchema()
+            {
+                Name = "node_project_id",
+                Type = "STRING",
+                Mode = "NULLABLE",
+                MaxLength = 64
+            };
         }
 
         private static class TableSchemas
@@ -502,6 +511,7 @@ namespace Google.Solutions.LicenseTracker.Services
                 FieldSchemas.MaintenancePolicy,
                 FieldSchemas.VcpuMinAllocated,
                 FieldSchemas.Labels,
+                FieldSchemas.NodeProjectId,
             };
 
             public static readonly IList<TableFieldSchema> PlacementEndedEvents = new TableFieldSchema[]
@@ -530,6 +540,7 @@ namespace Google.Solutions.LicenseTracker.Services
                   started.instance_project_id,
                   started.tenancy,
                   started.server_id,
+                  started.node_project_id,
                   started.node_type,
                   started.operating_system_family,
                   started.license,
@@ -552,6 +563,7 @@ namespace Google.Solutions.LicenseTracker.Services
                   started.instance_project_id,
                   started.tenancy,
                   started.server_id,
+                  started.node_project_id,
                   started.node_type,
                   started.operating_system_family,
                   started.license,
