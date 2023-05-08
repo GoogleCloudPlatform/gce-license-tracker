@@ -22,7 +22,7 @@
 using Google.Solutions.LicenseTracker.Data.Locator;
 using NUnit.Framework;
 
-namespace Google.Solutions.LicenseTracker.Data.Test.Locator
+namespace Google.Solutions.LicenseTracker.Test.Data.Locator
 {
     [TestFixture]
     public class TestDatasetLocator 

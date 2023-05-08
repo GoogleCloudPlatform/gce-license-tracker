@@ -19,6 +19,9 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Events.Config;
+using Google.Solutions.LicenseTracker.Data.Locator;
+
 namespace Google.Solutions.LicenseTracker.Data.History
 {
     /// <summary>
@@ -30,16 +33,32 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public DateTime EndDate { get; }
 
-        public IEnumerable<InstanceHistory> Instances { get; }
+        public IEnumerable<PlacementHistory> PlacementHistories { get; }
+
+        public IDictionary<ulong, ConfigurationHistory<MachineTypeLocator>> MachineTypeHistories { get; }
+
+        public IDictionary<ulong, ConfigurationHistory<SchedulingPolicy>> SchedulingPolicyHistories { get; }
+
+        public IDictionary<ulong, ConfigurationHistory<IImageLocator>> ImageHistories { get; }
+
+        public IDictionary<ulong, ConfigurationHistory<IDictionary<string, string>>> LabelHistories { get; }
 
         internal InstanceSetHistory(
             DateTime startDate,
             DateTime endDate,
-            IEnumerable<InstanceHistory> instances)
+            IEnumerable<PlacementHistory> instances,
+            IDictionary<ulong, ConfigurationHistory<MachineTypeLocator>> machineTypeHistories,
+            IDictionary<ulong, ConfigurationHistory<SchedulingPolicy>> schedulingPolicyHistories,
+            IDictionary<ulong, ConfigurationHistory<IImageLocator>> imageHistories,
+            IDictionary<ulong, ConfigurationHistory<IDictionary<string, string>>> labelHistories)
         {
             this.StartDate = startDate;
             this.EndDate = endDate;
-            this.Instances = instances;
+            this.PlacementHistories = instances;
+            this.MachineTypeHistories = machineTypeHistories;
+            this.SchedulingPolicyHistories = schedulingPolicyHistories;
+            this.ImageHistories = imageHistories;
+            this.LabelHistories = labelHistories;
         }
     }
 }

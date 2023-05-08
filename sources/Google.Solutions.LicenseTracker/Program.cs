@@ -163,7 +163,8 @@ namespace Google.Solutions.LicenseTracker
             //
             // Analyze logs and create report.
             //
-            var report = await this.placementReportService.CreateReport(
+            var report = await this.placementReportService
+                .CreateReport(
                     projectsToAnalyze,
                     this.commandLineOptions.AnalysisWindowSizeInDays,
                     reportStartDateInclusive.Value,
@@ -192,16 +193,18 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.StartedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u}: {5}/{6}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}, Labels: {9}",
                         placement.InstanceId,
                         placement.Instance?.Name,
-                        placement.Placement.ServerId,
+                        placement.Placement.ServerId ?? "fleet",
                         placement.Placement.NodeType?.Name ?? "-",
                         placement.Placement.From,
                         placement.License?.OperatingSystem,
-                        placement.License?.LicenseType);
+                        placement.License?.LicenseType,
+                        placement.Machine?.ToString() ?? "-",
+                        placement.SchedulingPolicy?.ToString() ?? "-",
+                        placement.Labels?.ToShortString());
                 }
-
 
                 Console.WriteLine(new String('-', 80));
                 Console.WriteLine("Placement ended events");
@@ -210,14 +213,17 @@ namespace Google.Solutions.LicenseTracker
                 foreach (var placement in report.EndedPlacements)
                 {
                     Console.WriteLine(
-                        "{0} ({1}) on {2} ({3}) @ {4:u}: {5}/{6}",
+                        "{0} ({1}) on {2} ({3}) @ {4:u} - OS: {5}/{6}, Machine: {7}, Scheduling: {8}, Labels: {9}",
                         placement.InstanceId,
                         placement.Instance?.Name,
-                        placement.Placement.ServerId,
+                        placement.Placement.ServerId ?? "fleet",
                         placement.Placement.NodeType?.Name ?? "-",
                         placement.Placement.To,
                         placement.License?.OperatingSystem,
-                        placement.License?.LicenseType);
+                        placement.License?.LicenseType,
+                        placement.Machine?.ToString() ?? "-",
+                        placement.SchedulingPolicy?.ToString() ?? "-",
+                        placement.Labels?.ToShortString());
                 }
             }
         }
@@ -279,7 +285,7 @@ namespace Google.Solutions.LicenseTracker
 
                         services.AddTransient<IInstanceHistoryService, InstanceHistoryService>();
                         services.AddTransient<IPlacementReportService, PlacementReportService>();
-                        services.AddTransient<ILicenseService, LicenseService>();
+                        services.AddTransient<ILookupService, LookupService>();
                         services.AddTransient<IReportDatasetService, ReportDatasetService>();
                         services.AddTransient<IProjectAutodiscoveryService, ProjectAutodiscoveryService>();
                     })

@@ -30,8 +30,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
         public const string BetaMethod = "beta.compute.instances.resume";
         public const string AlphaMethod = "alpha.compute.instances.resume";
 
-        public override EventCategory Category => EventCategory.Lifecycle;
-
         internal ResumeInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
             Debug.Assert(IsResumeInstanceEvent(logRecord));

@@ -52,6 +52,9 @@ namespace Google.Solutions.LicenseTracker.Data.Logs
         [JsonProperty("labels")]
         public IDictionary<string, string>? Labels { get; set; }
 
+        [JsonProperty("operation")]
+        public OperationRecord? Operation { get; set; }
+
         //---------------------------------------------------------------------
         // Derived part.
         //---------------------------------------------------------------------
@@ -112,5 +115,14 @@ namespace Google.Solutions.LicenseTracker.Data.Logs
 
         [JsonProperty("labels")]
         public IDictionary<string, string>? Labels { get; set; }
+    }
+
+    public class OperationRecord
+    {
+        [JsonProperty("first")]
+        public bool IsFirst { get; set; }
+
+        [JsonProperty("last")]
+        public bool IsLast { get; set; }
     }
 }

@@ -19,6 +19,7 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.Events.Lifecycle;
 using Google.Solutions.LicenseTracker.Data.Events.System;
 using Google.Solutions.LicenseTracker.Data.Logs;
@@ -29,9 +30,14 @@ namespace Google.Solutions.LicenseTracker.Data.Events
     public static class EventFactory
     {
 
-        private readonly static IDictionary<string, Func<LogRecord, EventBase>> lifecycleEvents
+        private readonly static IDictionary<string, Func<LogRecord, EventBase>> eventTypes
             = new Dictionary<string, Func<LogRecord, EventBase>>()
             {
+                //
+                // Lifecycle events.
+                //
+                // NB. Some lifecyce-related beta events are omitted (based on audit_log_services.ts).
+                //
                 { DeleteInstanceEvent.Method, rec => new DeleteInstanceEvent(rec) },
                 { InsertInstanceEvent.Method, rec => new InsertInstanceEvent(rec) },
                 { InsertInstanceEvent.BetaMethod, rec => new InsertInstanceEvent(rec) },
@@ -47,13 +53,23 @@ namespace Google.Solutions.LicenseTracker.Data.Events
                 { ResumeInstanceEvent.Method, rec => new ResumeInstanceEvent(rec) },
                 { ResumeInstanceEvent.BetaMethod, rec => new ResumeInstanceEvent(rec) },
                 { ResumeInstanceEvent.AlphaMethod, rec => new ResumeInstanceEvent(rec) },
-                
-                // Some lifecyce-related beta events omitted (based on audit_log_services.ts),
-            };
+                { BulkInsertInstanceEvent.Method, rec => new BulkInsertInstanceEvent(rec) },
 
-        private readonly static IDictionary<string, Func<LogRecord, EventBase>> systemEvents
-            = new Dictionary<string, Func<LogRecord, EventBase>>()
-            {
+                //
+                // Config events.
+                //
+                { SetMachineTypeEvent.Method, rec => new SetMachineTypeEvent(rec) },
+                { UpdateInstanceEvent.Method, rec => new UpdateInstanceEvent(rec) },
+                { UpdateInstanceEvent.BetaMethod, rec => new UpdateInstanceEvent(rec) },
+                { SetSchedulingEvent.Method, rec => new SetSchedulingEvent(rec) },
+                { SetSchedulingEvent.BetaMethod, rec => new SetSchedulingEvent(rec) },
+                { SetLabelsEvent.Method, rec => new SetLabelsEvent(rec) },
+
+                //
+                // System events.
+                //
+                // NB. Some more esoteric event types are omitted (based on InstanceEventInfo.java).
+                //
                 { AutomaticRestartEvent.Method, rec => new AutomaticRestartEvent(rec) },
                 { GuestTerminateEvent.Method, rec => new GuestTerminateEvent(rec) },
                 { HostErrorEvent.Method, rec => new HostErrorEvent(rec) },
@@ -64,12 +80,8 @@ namespace Google.Solutions.LicenseTracker.Data.Events
                 { NotifyInstanceLocationEvent.Method, rec => new NotifyInstanceLocationEvent(rec) },
                 { RecreateInstanceEvent.Method, rec => new RecreateInstanceEvent(rec) },
                 { TerminateOnHostMaintenanceEvent.Method, rec => new TerminateOnHostMaintenanceEvent(rec) }
-
-                // Some more esoteric event types omitted (based on InstanceEventInfo.java).
             };
-
-        public static IEnumerable<string> LifecycleEventMethods => lifecycleEvents.Keys;
-        public static IEnumerable<string> SystemEventMethods => systemEvents.Keys;
+        public static IEnumerable<string> EventMethods => eventTypes.Keys;
 
         public static EventBase FromRecord(LogRecord record)
         {
@@ -79,29 +91,25 @@ namespace Google.Solutions.LicenseTracker.Data.Events
             }
 
             if (record.ProtoPayload?.MethodName != null &&
-                lifecycleEvents.TryGetValue(record.ProtoPayload.MethodName, out var lcFunc))
+                eventTypes.TryGetValue(record.ProtoPayload.MethodName, out var lcFunc))
             {
                 var e = lcFunc(record);
-                Debug.Assert(e.Category == EventCategory.Lifecycle);
-                return e;
-            }
-            else if (record.ProtoPayload?.MethodName != null &&
-                systemEvents.TryGetValue(record.ProtoPayload.MethodName, out var sysFunc))
-            {
-                var e = sysFunc(record);
-                Debug.Assert(e.Category == EventCategory.System);
                 return e;
             }
             else if (record.IsSystemEvent)
             {
+                //
                 // There are some less common/more esoteric system events that do not
                 // have a wrapper class. Map these to GenericSystemEvent.
+                //
                 return new GenericSystemEvent(record);
             }
             else
             {
+                //
                 // The list of activity event types is incomplete any might grow stale over time,
                 // so ensure to fail open.
+                //
                 return new UnknownEvent(record);
             }
         }

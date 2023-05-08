@@ -29,8 +29,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
         public const string Method = "v1.compute.instances.startWithEncryptionKey";
         public const string BetaMethod = "beta.compute.instances.startWithEncryptionKey";
 
-        public override EventCategory Category => EventCategory.Lifecycle;
-
         internal StartWithEncryptionKeyEvent(LogRecord logRecord) : base(logRecord)
         {
             Debug.Assert(IsStartWithEncryptionKeyEvent(logRecord));

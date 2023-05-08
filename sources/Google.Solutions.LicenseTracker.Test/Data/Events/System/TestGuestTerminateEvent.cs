@@ -25,7 +25,7 @@ using Google.Solutions.LicenseTracker.Data.Events.System;
 using Google.Solutions.LicenseTracker.Data.Logs;
 using NUnit.Framework;
 
-namespace Google.Solutions.LicenseTracker.Data.Test.Events.System
+namespace Google.Solutions.LicenseTracker.Test.Data.Events.System
 {
     [TestFixture]
     public class TestGuestTerminateEvent 

@@ -28,8 +28,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
     {
         public const string Method = "v1.compute.instances.reset";
 
-        public override EventCategory Category => EventCategory.Lifecycle;
-
         internal ResetInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
             Debug.Assert(IsResetInstanceEvent(logRecord));

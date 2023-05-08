@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Google.Solutions.LicenseTracker.Data.Test.Logs
+namespace Google.Solutions.LicenseTracker.Test.Data.Logs
 {
     [TestFixture]
     public class TestListLogEntriesParser 

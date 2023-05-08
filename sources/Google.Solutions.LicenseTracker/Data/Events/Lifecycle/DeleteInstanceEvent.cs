@@ -28,8 +28,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
     {
         public const string Method = "v1.compute.instances.delete";
 
-        public override EventCategory Category => EventCategory.Lifecycle;
-
         internal DeleteInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
             Debug.Assert(IsDeleteInstanceEvent(logRecord));

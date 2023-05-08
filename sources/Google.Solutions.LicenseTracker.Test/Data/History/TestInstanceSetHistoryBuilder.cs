@@ -27,13 +27,10 @@ using Google.Solutions.LicenseTracker.Data.Logs;
 using Google.Solutions.LicenseTracker.Data.History;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 
 namespace Google.Solutions.LicenseTracker.Test.Data.History
 {
@@ -43,6 +40,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         private static readonly InstanceLocator SampleReference = new InstanceLocator("pro", "zone", "name");
         private static readonly ImageLocator SampleImage
             = ImageLocator.FromString("projects/project-1/global/images/image-1");
+        private static readonly MachineTypeLocator SampleMachineType
+            = MachineTypeLocator.FromString("projects/project-1/zones/asia-southeast1-b/machineTypes/e2-medium");
 
         private readonly ILogger logger = new Mock<ILogger>().Object;
 
@@ -85,16 +84,24 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                 1,
                 SampleReference,
                 SampleImage,
+                SampleMachineType,
+                new SchedulingPolicy("TERMINATE", null),
                 InstanceState.Running,
                 DateTime.UtcNow,
                 Tenancies.Fleet,
+                null,
                 null,
                 null);
 
             var set = b.Build();
 
-            Assert.AreEqual(1, set.Instances.Count());
-            Assert.AreEqual(1, set.Instances.First().InstanceId);
+            Assert.AreEqual(1, set.PlacementHistories.Count());
+            Assert.AreEqual(1, set.MachineTypeHistories.Count());
+            Assert.AreEqual(1, set.SchedulingPolicyHistories.Count());
+
+            Assert.AreEqual(1, set.PlacementHistories.First().InstanceId);
+            Assert.AreEqual(1, set.MachineTypeHistories.First().Value.InstanceId);
+            Assert.AreEqual(1, set.SchedulingPolicyHistories.First().Value.InstanceId);
         }
 
         [Test]
@@ -109,18 +116,22 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                 1,
                 SampleReference,
                 SampleImage,
+                SampleMachineType,
+                new SchedulingPolicy("TERMINATE", null),
                 InstanceState.Running,
                 DateTime.UtcNow,
                 Tenancies.SoleTenant,
                 "server-1",
-                new NodeTypeLocator("project-1", "zone-1", "type-1"));
+                new NodeTypeLocator("project-1", "zone-1", "type-1"),
+                null);
 
             var set = b.Build();
 
-            Assert.AreEqual(1, set.Instances.Count());
-            Assert.AreEqual(1, set.Instances.First().InstanceId);
-            Assert.AreEqual("server-1", set.Instances.First().Placements.First().ServerId);
-            Assert.AreEqual("type-1", set.Instances.First().Placements.First().NodeType?.Name);
+            Assert.AreEqual(1, set.PlacementHistories.Count());
+            Assert.AreEqual(1, set.PlacementHistories.First().InstanceId);
+
+            Assert.AreEqual("server-1", set.PlacementHistories.First().Placements.First().ServerId);
+            Assert.AreEqual("type-1", set.PlacementHistories.First().Placements.First().NodeType?.Name);
         }
 
         [Test]
@@ -151,9 +162,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
 
             var set = b.Build();
 
-            Assert.AreEqual(1, set.Instances.Count());
-            Assert.AreEqual(123, set.Instances.First().InstanceId);
-            Assert.AreEqual(InstanceHistoryState.MissingTenancy, set.Instances.First().State);
+            Assert.AreEqual(1, set.PlacementHistories.Count());
+            Assert.AreEqual(123, set.PlacementHistories.First().InstanceId);
         }
 
         [Test]
@@ -202,8 +212,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
 
             var set = b.Build();
 
-            Assert.AreEqual(1, set.Instances.Count());
-            Assert.AreEqual(123, set.Instances.First().InstanceId);
+            Assert.AreEqual(1, set.PlacementHistories.Count());
+            Assert.AreEqual(123, set.PlacementHistories.First().InstanceId);
         }
 
         [Test]
@@ -211,12 +221,9 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         {
             var set = BuildHistoryFromResource("instance-1.json");
 
-            Assert.AreEqual(1, set.Instances.Count());
+            Assert.AreEqual(1, set.PlacementHistories.Count());
 
-            var instance = set.Instances.First();
-            Assert.AreEqual(
-                ImageLocator.FromString("projects/windows-cloud/global/images/windows-server"),
-                instance.Image);
+            var instance = set.PlacementHistories.First();
             Assert.AreEqual(1, instance.Placements.Count());
 
             var placement = instance.Placements.First();
@@ -234,12 +241,9 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         public void WhenReadingSample2_ThenHistoryIsRestored()
         {
             var set = BuildHistoryFromResource("instance-2.json");
-            Assert.AreEqual(1, set.Instances.Count());
+            Assert.AreEqual(1, set.PlacementHistories.Count());
 
-            var instance = set.Instances.First();
-            Assert.AreEqual(
-                ImageLocator.FromString("projects/windows-cloud/global/images/windows-server"),
-                instance.Image);
+            var instance = set.PlacementHistories.First();
             Assert.AreEqual(1, instance.Placements.Count());
 
             var placement = instance.Placements.First();
@@ -257,12 +261,9 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         public void WhenReadingSample3_ThenHistoryIsRestored()
         {
             var set = BuildHistoryFromResource("instance-3.json");
-            Assert.AreEqual(1, set.Instances.Count());
+            Assert.AreEqual(1, set.PlacementHistories.Count());
 
-            var instance = set.Instances.First();
-            Assert.AreEqual(
-                ImageLocator.FromString("projects/project-1/global/images/windows-server"),
-                instance.Image);
+            var instance = set.PlacementHistories.First();
             Assert.AreEqual(2, instance.Placements.Count());
 
             var firstPlacement = instance.Placements.First();
@@ -291,9 +292,9 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
         public void WhenReadingSample4_ThenHistoryIsRestoredWithMixedTenancy()
         {
             var set = BuildHistoryFromResource("instance-4.json");
-            Assert.AreEqual(1, set.Instances.Count());
+            Assert.AreEqual(1, set.PlacementHistories.Count());
 
-            var instance = set.Instances.First();
+            var instance = set.PlacementHistories.First();
             Assert.AreEqual(2, instance.Placements.Count());
 
             var firstPlacement = instance.Placements.First();

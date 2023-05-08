@@ -28,8 +28,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
     {
         public const string Method = "v1.compute.instances.start";
 
-        public override EventCategory Category => EventCategory.Lifecycle;
-
         internal StartInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
             Debug.Assert(IsStartInstanceEvent(logRecord));

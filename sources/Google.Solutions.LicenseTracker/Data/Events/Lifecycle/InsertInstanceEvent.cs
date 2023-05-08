@@ -19,6 +19,7 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Data.Logs;
 using Newtonsoft.Json.Linq;
@@ -31,9 +32,11 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
         public const string Method = "v1.compute.instances.insert";
         public const string BetaMethod = "beta.compute.instances.insert";
 
-        public override EventCategory Category => EventCategory.Lifecycle;
-
         public IImageLocator? Image { get; }
+        public MachineTypeLocator? MachineType { get; }
+
+        public SchedulingPolicy? SchedulingPolicy { get; }
+        public IDictionary<string, string>? Labels { get; }
 
         internal InsertInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
@@ -76,6 +79,33 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
                         }
                     }
                 }
+
+                if (request.Value<string>("machineType") is var machineType &&
+                    !string.IsNullOrEmpty(machineType))
+                {
+                    this.MachineType = MachineTypeLocator.FromString(machineType);
+                }
+
+
+                if (request?["scheduling"] is var schedulingPolicy &&
+                    schedulingPolicy != null)
+                {
+                    this.SchedulingPolicy = new SchedulingPolicy(
+                        schedulingPolicy.Value<string>("onHostMaintenance") ?? "TERMINATE",
+                        schedulingPolicy.Value<uint?>("minNodeCpus"));
+                }
+
+                if (request?["labels"] is var labels && labels != null)
+                {
+                    this.Labels = labels
+                        .OfType<JObject>()
+                        .Select(item => new {
+                            Key = (string?)item.PropertyValues().ElementAtOrDefault(0),
+                            Value = (string?)item.PropertyValues().ElementAtOrDefault(1)
+                        })
+                        .Where(item => item.Key != null && item.Value != null)
+                        .ToDictionary(kvp => kvp.Key!, kvp => kvp.Value!);
+                }
             }
         }
 
@@ -85,7 +115,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
                 (record.ProtoPayload?.MethodName == Method ||
                  record.ProtoPayload?.MethodName == BetaMethod);
         }
-
 
         //---------------------------------------------------------------------
         // IInstanceStateChangeEvent.

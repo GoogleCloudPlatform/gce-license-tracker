@@ -84,24 +84,6 @@ namespace Google.Solutions.LicenseTracker.Services
                         .CreateDatasetAsync(dataset, "License Tracking", cancellationToken)
                         .ConfigureAwait(false);
 
-                    foreach (var table in new Dictionary<string, IList<TableFieldSchema>>()
-                    {
-                        { TableNames.PlacementStartedEvents, TableSchemas.PlacementStartedEvents },
-                        { TableNames.PlacementEndedEvents, TableSchemas.PlacementEndedEvents},
-                        { TableNames.AnalyisRuns, TableSchemas.AnalysisRuns }
-                    })
-                    {
-                        await this.bigQueryAdapter
-                            .CreateTableAsync(
-                                new TableLocator(
-                                    dataset.ProjectId,
-                                    dataset.Name,
-                                    table.Key),
-                                table.Value,
-                                cancellationToken)
-                            .ConfigureAwait(false);
-                    }
-
                     this.logger.LogInformation("Dataset {name} created", dataset);
                 }
                 catch (Exception)
@@ -109,6 +91,35 @@ namespace Google.Solutions.LicenseTracker.Services
                     this.logger.LogError("Failed to create dataset {name}", dataset);
                     throw;
                 }
+            }
+
+            //
+            // Ensure that tables exist and their schema are up-to-date.
+            //
+            try
+            {
+                foreach (var table in new Dictionary<string, IList<TableFieldSchema>>()
+                    {
+                        { TableNames.PlacementStartedEvents, TableSchemas.PlacementStartedEvents },
+                        { TableNames.PlacementEndedEvents, TableSchemas.PlacementEndedEvents},
+                        { TableNames.AnalyisRuns, TableSchemas.AnalysisRuns }
+                    })
+                {
+                    await this.bigQueryAdapter
+                        .CreateOrPatchTableAsync(
+                            new TableLocator(
+                                dataset.ProjectId,
+                                dataset.Name,
+                                table.Key),
+                            table.Value,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
+            }
+            catch (Exception)
+            {
+                this.logger.LogError("Failed to create or update tables in dataset {name}", dataset);
+                throw;
             }
 
             //
@@ -199,6 +210,7 @@ namespace Google.Solutions.LicenseTracker.Services
                                     } },
                                 { FieldSchemas.ServerId.Name, p.Placement.ServerId },
                                 { FieldSchemas.NodeType.Name, p.Placement.NodeType?.Name },
+                                { FieldSchemas.NodeProjectId.Name, p.Placement.NodeType?.ProjectId },
                                 { FieldSchemas.OperatingSystemFamily.Name, p.License?.OperatingSystem switch
                                     {
                                         OperatingSystemTypes.Windows => "WIN",
@@ -213,6 +225,16 @@ namespace Google.Solutions.LicenseTracker.Services
                                         LicenseTypes.Spla => "SPLA",
                                         _ => null
                                     }
+                                },
+                                { FieldSchemas.MachineType.Name, p.Machine?.Type?.Name },
+                                { FieldSchemas.VcpuCount.Name, p.Machine?.VirtualCpuCount },
+                                { FieldSchemas.Memory.Name, p.Machine?.MemoryMb },
+                                { FieldSchemas.MaintenancePolicy.Name, p.SchedulingPolicy?.MaintenancePolicy },
+                                { FieldSchemas.VcpuMinAllocated.Name, p.SchedulingPolicy?.MinNodeCpus },
+                                { FieldSchemas.Labels.Name, p.Labels
+                                    .EnsureNotNull()
+                                    .Select(kvp => new { key = kvp.Key, value = kvp.Value })
+                                    .ToArray()
                                 }
                             })
                             .ToList(),
@@ -384,12 +406,88 @@ namespace Google.Solutions.LicenseTracker.Services
                 Type = "INT64",
                 Mode = "REQUIRED"
             };
+
+            public static readonly TableFieldSchema MachineType = new TableFieldSchema()
+            {
+                Name = "machine_type",
+                Type = "STRING",
+                Mode = "NULLABLE",
+                MaxLength = 128
+            };
+
+            public static readonly TableFieldSchema VcpuCount = new TableFieldSchema()
+            {
+                Name = "vcpu_count",
+                Type = "INT64",
+                Mode = "NULLABLE"
+            };
+
+            public static readonly TableFieldSchema VcpuMinAllocated = new TableFieldSchema()
+            {
+                Name = "vcpu_min_allocated",
+                Type = "INT64",
+                Mode = "NULLABLE"
+            };
+
+            public static readonly TableFieldSchema Memory = new TableFieldSchema()
+            {
+                Name = "memory_mb",
+                Type = "INT64",
+                Mode = "NULLABLE"
+            };
+
+            public static readonly TableFieldSchema MaintenancePolicy = new TableFieldSchema()
+            {
+                Name = "maintenance_policy",
+                Type = "STRING",
+                Mode = "NULLABLE",
+                MaxLength = 128
+            };
+
+            public static readonly TableFieldSchema Labels = new TableFieldSchema()
+            {
+                Name = "labels",
+                Type = "STRUCT",
+                Mode = "REPEATED",
+                Fields = new[]
+                {
+                    new TableFieldSchema()
+                    {
+                        Name = "key",
+                        Type = "STRING",
+                        Mode = "NULLABLE",
+                        MaxLength = 128
+                    },
+                    new TableFieldSchema()
+                    {
+                        Name = "value",
+                        Type = "STRING",
+                        Mode = "NULLABLE",
+                        MaxLength = 256
+                    }
+                }
+            };
+
+            public static readonly TableFieldSchema NodeProjectId = new TableFieldSchema()
+            {
+                Name = "node_project_id",
+                Type = "STRING",
+                Mode = "NULLABLE",
+                MaxLength = 64
+            };
         }
 
         private static class TableSchemas
         {
+            //
+            // NB. All schema changes must be backward-compatible!
+            //
+
             public static readonly IList<TableFieldSchema> PlacementStartedEvents = new TableFieldSchema[]
             {
+                //
+                // v1.0.0
+                //
                 FieldSchemas.RunId,
                 FieldSchemas.InstanceId,
                 FieldSchemas.InstanceProjectId,
@@ -402,7 +500,18 @@ namespace Google.Solutions.LicenseTracker.Services
                 FieldSchemas.NodeType,
                 FieldSchemas.OperatingSystemFamily,
                 FieldSchemas.LicenseType,
-                FieldSchemas.License
+                FieldSchemas.License,
+
+                //
+                // v1.1.0
+                //
+                FieldSchemas.MachineType,
+                FieldSchemas.VcpuCount,
+                FieldSchemas.Memory,
+                FieldSchemas.MaintenancePolicy,
+                FieldSchemas.VcpuMinAllocated,
+                FieldSchemas.Labels,
+                FieldSchemas.NodeProjectId,
             };
 
             public static readonly IList<TableFieldSchema> PlacementEndedEvents = new TableFieldSchema[]
@@ -431,10 +540,16 @@ namespace Google.Solutions.LicenseTracker.Services
                   started.instance_project_id,
                   started.tenancy,
                   started.server_id,
+                  started.node_project_id,
                   started.node_type,
                   started.operating_system_family,
                   started.license,
                   started.license_type,    
+                  started.machine_type,
+                  started.vcpu_count,
+                  started.memory_mb,
+                  started.maintenance_policy,
+                  started.vcpu_min_allocated,
                   started.date AS start_date,
                   MIN(ended.date) AS end_date
                 FROM `{dataset}.analysis_runs` runs
@@ -448,10 +563,16 @@ namespace Google.Solutions.LicenseTracker.Services
                   started.instance_project_id,
                   started.tenancy,
                   started.server_id,
+                  started.node_project_id,
                   started.node_type,
                   started.operating_system_family,
                   started.license,
-                  started.license_type";
+                  started.license_type,
+                  started.machine_type,
+                  started.vcpu_count,
+                  started.memory_mb,
+                  started.maintenance_policy,
+                  started.vcpu_min_allocated";
             }
 
             public static string NodeTypeDetails()

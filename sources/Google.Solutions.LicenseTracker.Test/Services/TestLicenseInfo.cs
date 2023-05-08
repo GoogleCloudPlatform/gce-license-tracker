@@ -19,16 +19,11 @@
 // under the License.
 //
 
-using Google.Solutions.LicenseTracker.Data.History;
 using Google.Solutions.LicenseTracker.Data.Locator;
+using Google.Solutions.LicenseTracker.Services;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Google.Solutions.LicenseTracker.Test.Data.History
+namespace Google.Solutions.LicenseTracker.Test.Services
 {
 
     [TestFixture]

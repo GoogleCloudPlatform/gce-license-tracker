@@ -39,7 +39,7 @@ namespace Google.Solutions.LicenseTracker.Adapters
             string description,
             CancellationToken cancellationToken);
 
-        Task<Table> CreateTableAsync(
+        Task<Table> CreateOrPatchTableAsync(
             TableLocator table,
             IList<TableFieldSchema> fields,
             CancellationToken cancellationToken);
@@ -132,31 +132,77 @@ namespace Google.Solutions.LicenseTracker.Adapters
             }
         }
 
-        public async Task<Table> CreateTableAsync(
+        public async Task<Table> CreateOrPatchTableAsync(
             TableLocator table,
             IList<TableFieldSchema> fields,
             CancellationToken cancellationToken)
         {
+            //
+            // Check if the table exists already.
+            //
+            Table? existingTable;
             try
             {
-                var dataset = table.Dataset;
-                return await this.service.Tables
-                        .Insert(new Table()
-                        {
-                            TableReference = new TableReference()
-                            {
-                                DatasetId = dataset.Name,
-                                ProjectId = dataset.ProjectId,
-                                TableId = table.Name
-                            },
-                            Schema = new TableSchema()
-                            {
-                                Fields = fields
-                            }
-                        },
-                        dataset.ProjectId,
-                        dataset.Name)
+                existingTable = await this.service
+                    .Tables
+                    .Get(table.ProjectId, table.Dataset.Name, table.Name)
                     .ExecuteAsync(cancellationToken);
+            }
+            catch (GoogleApiException e) when (e.IsNotFoundError())
+            {
+                existingTable = null;
+            }
+            catch (GoogleApiException e) when (e.IsAccessDeniedError())
+            {
+                throw new ResourceAccessDeniedException(
+                    $"Insufficient permissions to access table in dataset {table.Dataset}",
+                    e);
+            }
+
+            var dataset = table.Dataset;
+            var tableDefinition = new Table()
+            {
+                TableReference = new TableReference()
+                {
+                    DatasetId = dataset.Name,
+                    ProjectId = dataset.ProjectId,
+                    TableId = table.Name
+                },
+                Schema = new TableSchema()
+                {
+                    Fields = fields
+                }
+            };
+
+            try
+            {
+                if (existingTable == null)
+                {
+                    //
+                    // Table does not exist yet -> create.
+                    //
+                    return await this.service
+                        .Tables
+                        .Insert(tableDefinition,
+                            dataset.ProjectId,
+                            dataset.Name)
+                        .ExecuteAsync(cancellationToken);
+                }
+                else
+                {
+                    //
+                    // Table exsts -> patch.
+                    //
+                    // NB. This assumes that schema changes are backward-compatible.
+                    //
+                    return await this.service
+                        .Tables
+                        .Patch(tableDefinition,
+                            dataset.ProjectId,
+                            dataset.Name,
+                            table.Name)
+                        .ExecuteAsync(cancellationToken);
+                }
             }
             catch (GoogleApiException e) when (e.IsAccessDeniedError())
             {
@@ -177,6 +223,7 @@ namespace Google.Solutions.LicenseTracker.Adapters
             Table? existingView;
             try
             {
+                
                 existingView = await this.service
                     .Tables
                     .Get(view.ProjectId, view.Dataset.Name, view.Name)

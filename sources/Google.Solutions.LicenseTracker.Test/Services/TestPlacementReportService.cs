@@ -20,6 +20,7 @@
 //
 
 using Google.Solutions.LicenseTracker.Adapters;
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.History;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Services;
@@ -42,7 +43,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         {
             var service = new PlacementReportService(
                 new Mock<IInstanceHistoryService>().Object,
-                new Mock<ILicenseService>().Object,
+                new Mock<ILookupService>().Object,
                 new NullLogger<PlacementReportService>());
 
             ExceptionAssert.ThrowsAggregateException<ArgumentException>(
@@ -55,11 +56,11 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         }
 
         [Test]
-        public void WhenStarDateEscapesAnalysisWindow_ThenCreateReportThrowsException()
+        public void WhenStartDateEscapesAnalysisWindow_ThenCreateReportThrowsException()
         {
             var service = new PlacementReportService(
                 new Mock<IInstanceHistoryService>().Object,
-                new Mock<ILicenseService>().Object,
+                new Mock<ILookupService>().Object,
                 new NullLogger<PlacementReportService>());
 
             ExceptionAssert.ThrowsAggregateException<ArgumentException>(
@@ -74,7 +75,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         [Test]
         public async Task WhenImageUnknown_ThenPlacementsHaveNullLicense()
         {
-            var licenseService = new Mock<ILicenseService>();
+            var licenseService = new Mock<ILookupService>();
             licenseService.Setup(s => s.LookupLicenseInfoAsync(
                     It.IsAny<IEnumerable<IImageLocator>>(),
                     It.IsAny<CancellationToken>()))
@@ -92,15 +93,24 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 .ReturnsAsync(new InstanceSetHistory(
                     startDate,
                     endDate,
-                    new[] { new InstanceHistory(
+                    new[] { new PlacementHistory(
                         1,
                         new InstanceLocator("project-1", "zone-1", "instance-1"),
-                        InstanceHistoryState.Complete,
-                        new ImageLocator("project-1", "unknown-image"),
                         new []
                         {
-                            new InstancePlacement(endDate.AddDays(-1), endDate)
-                        }) }));
+                            new Placement(endDate.AddDays(-1), endDate)
+                        }) },
+                    new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>(),
+                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>(),
+                    new Dictionary<ulong, ConfigurationHistory<IImageLocator>>()
+                    {
+                        { 1, new ConfigurationHistory<IImageLocator>(
+                            1,
+                            new ImageLocator("project-1", "unknown-image"),
+                            Enumerable.Empty<ConfigurationChange<IImageLocator>>()) 
+                        }
+                    },
+                    new Dictionary<ulong, ConfigurationHistory<IDictionary<string, string>>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -122,7 +132,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         [Test]
         public async Task WhenPlacementStraddlesEndDate_ThenReportContainsPlacementStartEvent()
         {
-            var licenseService = new Mock<ILicenseService>();
+            var licenseService = new Mock<ILookupService>();
             licenseService.Setup(s => s.LookupLicenseInfoAsync(
                     It.IsAny<IEnumerable<IImageLocator>>(),
                     It.IsAny<CancellationToken>()))
@@ -140,15 +150,24 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 .ReturnsAsync(new InstanceSetHistory(
                     startDate,
                     endDate,
-                    new[] { new InstanceHistory(
+                    new[] { new PlacementHistory(
                         1,
                         new InstanceLocator("project-1", "zone-1", "instance-1"),
-                        InstanceHistoryState.Complete,
-                        new ImageLocator("project-1", "unknown-image"),
                         new []
                         {
-                            new InstancePlacement(endDate.AddDays(-1), endDate) // till end
-                        }) }));
+                            new Placement(endDate.AddDays(-1), endDate) // till end
+                        }) },
+                    new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>(),
+                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>(),
+                    new Dictionary<ulong, ConfigurationHistory<IImageLocator>>()
+                    {
+                        { 1, new ConfigurationHistory<IImageLocator>(
+                            1,
+                            new ImageLocator("project-1", "unknown-image"),
+                            Enumerable.Empty<ConfigurationChange<IImageLocator>>())
+                        }
+                    },
+                    new Dictionary<ulong, ConfigurationHistory<IDictionary<string, string>>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,
@@ -169,7 +188,7 @@ namespace Google.Solutions.LicenseTracker.Test.Services
         [Test]
         public async Task WhenPlacementDoesNotStraddleEndDate_ThenReportContainsPlacementStartAndEndEvent()
         {
-            var licenseService = new Mock<ILicenseService>();
+            var licenseService = new Mock<ILookupService>();
             licenseService.Setup(s => s.LookupLicenseInfoAsync(
                     It.IsAny<IEnumerable<IImageLocator>>(),
                     It.IsAny<CancellationToken>()))
@@ -187,15 +206,24 @@ namespace Google.Solutions.LicenseTracker.Test.Services
                 .ReturnsAsync(new InstanceSetHistory(
                     startDate,
                     endDate,
-                    new[] { new InstanceHistory(
+                    new[] { new PlacementHistory(
                         1,
                         new InstanceLocator("project-1", "zone-1", "instance-1"),
-                        InstanceHistoryState.Complete,
-                        new ImageLocator("project-1", "unknown-image"),
                         new []
                         {
-                            new InstancePlacement(endDate.AddDays(-2), endDate.AddDays(-1))
-                        }) }));
+                            new Placement(endDate.AddDays(-2), endDate.AddDays(-1))
+                        }) },
+                    new Dictionary<ulong, ConfigurationHistory<MachineTypeLocator>>(),
+                    new Dictionary<ulong, ConfigurationHistory<SchedulingPolicy>>(),
+                    new Dictionary<ulong, ConfigurationHistory<IImageLocator>>()
+                    {
+                        { 1, new ConfigurationHistory<IImageLocator>(
+                            1,
+                            new ImageLocator("project-1", "unknown-image"),
+                            Enumerable.Empty<ConfigurationChange<IImageLocator>>())
+                        }
+                    },
+                    new Dictionary<ulong, ConfigurationHistory<IDictionary<string, string>>>()));
             var service = new PlacementReportService(
                 historyService.Object,
                 licenseService.Object,

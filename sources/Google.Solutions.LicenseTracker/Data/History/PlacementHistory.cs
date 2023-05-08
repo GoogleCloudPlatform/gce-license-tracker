@@ -23,29 +23,24 @@ using Google.Solutions.LicenseTracker.Data.Locator;
 
 namespace Google.Solutions.LicenseTracker.Data.History
 {
-    public class InstanceHistory
+    /// <summary>
+    /// Placement history for a specific VM instance.
+    /// </summary>
+    public class PlacementHistory
     {
         public ulong InstanceId { get; }
 
         public InstanceLocator? Reference { get; }
 
-        public IEnumerable<InstancePlacement> Placements { get; }
+        public IEnumerable<Placement> Placements { get; }
 
-        public IImageLocator? Image { get; }
-
-        public InstanceHistoryState State { get; }
-
-        internal InstanceHistory(
+        internal PlacementHistory(
             ulong instanceId,
             InstanceLocator? reference,
-            InstanceHistoryState state,
-            IImageLocator? image,
-            IEnumerable<InstancePlacement> placements)
+            IEnumerable<Placement> placements)
         {
             this.InstanceId = instanceId;
             this.Reference = reference;
-            this.State = state;
-            this.Image = image;
             this.Placements = placements;
         }
 
@@ -53,14 +48,5 @@ namespace Google.Solutions.LicenseTracker.Data.History
         {
             return $"{this.Reference} ({this.InstanceId})";
         }
-    }
-
-    public enum InstanceHistoryState
-    {
-        Complete,
-        MissingTenancy,
-        MissingName,
-        MissingImage,
-        MissingStopEvent
     }
 }

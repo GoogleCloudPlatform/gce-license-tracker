@@ -30,8 +30,6 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
         public const string BetaMethod = "beta.compute.instances.suspend";
         public const string AlphaMethod = "alpha.compute.instances.suspend";
 
-        public override EventCategory Category => EventCategory.Lifecycle;
-
         internal SuspendInstanceEvent(LogRecord logRecord) : base(logRecord)
         {
             Debug.Assert(IsSuspendInstanceEvent(logRecord));

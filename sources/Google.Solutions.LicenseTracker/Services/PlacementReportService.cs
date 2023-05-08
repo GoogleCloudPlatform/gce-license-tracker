@@ -19,6 +19,7 @@
 // under the License.
 //
 
+using Google.Solutions.LicenseTracker.Data.Events.Config;
 using Google.Solutions.LicenseTracker.Data.History;
 using Google.Solutions.LicenseTracker.Data.Locator;
 using Google.Solutions.LicenseTracker.Util;
@@ -40,15 +41,15 @@ namespace Google.Solutions.LicenseTracker.Services
     {
         private readonly ILogger logger;
         private readonly IInstanceHistoryService historyService;
-        private readonly ILicenseService licenseService;
+        private readonly ILookupService lookupService;
 
         public PlacementReportService(
             IInstanceHistoryService historyService,
-            ILicenseService licenseService,
+            ILookupService lookupService,
             ILogger<PlacementReportService> logger)
         {
             this.historyService = historyService;
-            this.licenseService = licenseService;
+            this.lookupService = lookupService;
             this.logger = logger;
         }
 
@@ -127,44 +128,72 @@ namespace Google.Solutions.LicenseTracker.Services
                 .ConfigureAwait(false);
 
             //
-            // Find out which licenses were used.
+            // Find out which licenses and machine types were used.
             //
-            var licenses = await this.licenseService.LookupLicenseInfoAsync(
-                    instanceSetHistory.Instances
-                        .Where(i => i.Image != null)
-                        .Select(i => i.Image!),
-                    cancellationToken)
-                .ConfigureAwait(false);
+            var licensesTask = this.lookupService.LookupLicenseInfoAsync(
+                instanceSetHistory.ImageHistories
+                    .Values
+                    .SelectMany(history => history.AllValues),
+                cancellationToken);
+            var machineTypesTask = this.lookupService.LookupMachineInfoAsync(
+                instanceSetHistory.MachineTypeHistories
+                    .Values
+                    .SelectMany(history => history.AllValues),
+                cancellationToken);
+
+            var licenseInfoByImage = await licensesTask.ConfigureAwait(false);
+            var machineInfoByType = await machineTypesTask.ConfigureAwait(false);
 
             return new PlacementReport()
             {
                 StartedPlacements = instanceSetHistory
-                    .Instances
+                    .PlacementHistories
                     .SelectMany(i => i.Placements
                         .Where(p => p.From >= startDateInclusive)
-                        .Select(p => new PlacementEvent()
-                        {
-                            Instance = i.Reference,
-                            InstanceId = i.InstanceId,
-                            Image = i.Image,
-                            Placement = p,
-                            License = i.Image != null ? licenses.TryGet(i.Image) : null
-                        }))
+                        .Select(p => CreatePlacementEvent(i, p)))
                     .ToList(),
                 EndedPlacements = instanceSetHistory
-                    .Instances
+                    .PlacementHistories
                     .SelectMany(i => i.Placements
                         .Where(p => p.To < endDateExclusive)
-                        .Select(p => new PlacementEvent()
-                        {
-                            Instance = i.Reference,
-                            InstanceId = i.InstanceId,
-                            Image = i.Image,
-                            Placement = p,
-                            License = i.Image != null ? licenses.TryGet(i.Image) : null
-                        }))
+                        .Select(p => CreatePlacementEvent(i, p)))
                     .ToList()
             };
+
+            PlacementEvent CreatePlacementEvent(PlacementHistory i, Placement p)
+            {
+                var image = instanceSetHistory?
+                    .ImageHistories
+                    .TryGet(i.InstanceId)?
+                    .GetHistoricValue(DateTime.UtcNow);
+
+                var machineType = instanceSetHistory?
+                    .MachineTypeHistories
+                    .TryGet(i.InstanceId)?
+                    .GetHistoricValue(p.From);
+
+                return new PlacementEvent()
+                {
+                    Instance = i.Reference,
+                    InstanceId = i.InstanceId,
+                    Image = image,
+                    Placement = p,
+                    License = image != null 
+                        ? licenseInfoByImage?.TryGet(image) 
+                        : null,
+                    Machine = machineType != null
+                        ? machineInfoByType.TryGet(machineType)
+                        : null,
+                    SchedulingPolicy = instanceSetHistory?
+                        .SchedulingPolicyHistories
+                        .TryGet(i.InstanceId)?
+                        .GetHistoricValue(p.From),
+                    Labels = instanceSetHistory?
+                        .LabelHistories
+                        .TryGet(i.InstanceId)?
+                        .GetHistoricValue(p.From),
+                };
+            }
         }
     }
 
@@ -212,11 +241,26 @@ namespace Google.Solutions.LicenseTracker.Services
         /// <summary>
         /// Details for placement.
         /// </summary>
-        public InstancePlacement Placement { get; init; }
+        public Placement Placement { get; init; }
 
         /// <summary>
         /// License of boot disk, if known.
         /// </summary>
         public LicenseInfo? License { get; init; }
+
+        /// <summary>
+        /// Machine info, if known.
+        /// </summary>
+        public MachineInfo? Machine { get; init; }
+
+        /// <summary>
+        /// Scheduling policy, if known.
+        /// </summary>
+        public SchedulingPolicy? SchedulingPolicy { get; init; }
+
+        /// <summary>
+        /// Labels, if known.
+        /// </summary>
+        public IDictionary<string, string>? Labels { get; init; }
     }
 }

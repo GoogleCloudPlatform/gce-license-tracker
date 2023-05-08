@@ -56,7 +56,6 @@ namespace Google.Solutions.LicenseTracker.Data.Locator
             Utilities.ThrowIfNull(projectId, nameof(projectId));
             Utilities.ThrowIfNull(resourceName, nameof(resourceName));
 
-            Debug.Assert(!long.TryParse(projectId, out long _));
             Debug.Assert(!long.TryParse(resourceName, out long _));
             Debug.Assert(!projectId.Contains("/"));
 

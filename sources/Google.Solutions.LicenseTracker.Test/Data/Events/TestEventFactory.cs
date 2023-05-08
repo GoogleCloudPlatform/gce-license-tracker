@@ -24,7 +24,7 @@ using Google.Solutions.LicenseTracker.Data.Logs;
 using NUnit.Framework;
 using System;
 
-namespace Google.Solutions.LicenseTracker.Data.Test.Events
+namespace Google.Solutions.LicenseTracker.Test.Data.Events
 {
     [TestFixture]
     public class TestEventFactory 
