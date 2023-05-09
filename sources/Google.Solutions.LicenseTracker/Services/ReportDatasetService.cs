@@ -533,46 +533,93 @@ namespace Google.Solutions.LicenseTracker.Services
         {
             public static string Placements(string dataset)
             {
-                return @$"SELECT 
-                  started.instance_id,
-                  started.instance_name,
-                  started.instance_zone,
-                  started.instance_project_id,
-                  started.tenancy,
-                  started.server_id,
-                  started.node_project_id,
-                  started.node_type,
-                  started.operating_system_family,
-                  started.license,
-                  started.license_type,    
-                  started.machine_type,
-                  started.vcpu_count,
-                  started.memory_mb,
-                  started.maintenance_policy,
-                  started.vcpu_min_allocated,
-                  started.date AS start_date,
-                  MIN(ended.date) AS end_date
-                FROM `{dataset}.analysis_runs` runs
-                INNER JOIN `{dataset}.placement_started_events` started ON runs.run_id=started.run_id
-                LEFT OUTER JOIN `{dataset}.placement_ended_events` ended ON started.instance_id=ended.instance_id AND started.date<ended.date
-                GROUP BY
-                  started.instance_id,
-                  started.date,
-                  started.instance_name,
-                  started.instance_zone,
-                  started.instance_project_id,
-                  started.tenancy,
-                  started.server_id,
-                  started.node_project_id,
-                  started.node_type,
-                  started.operating_system_family,
-                  started.license,
-                  started.license_type,
-                  started.machine_type,
-                  started.vcpu_count,
-                  started.memory_mb,
-                  started.maintenance_policy,
-                  started.vcpu_min_allocated";
+                return @$"
+                    WITH raw_placements AS (
+                        --
+                        -- Match placement-started and placement-ended events
+                        --
+                        -- Note that we might have multiple placement-started events
+                        -- for each placement-ended event because of staggered
+                        -- analysis windows.
+                        --
+                        SELECT 
+                            started.instance_id,
+                            started.instance_name,
+                            started.instance_zone,
+                            started.instance_project_id,
+                            started.tenancy,
+                            started.server_id,
+                            started.node_project_id,
+                            started.node_type,
+                            started.operating_system_family,
+                            started.license,
+                            started.license_type,    
+                            started.machine_type,
+                            started.vcpu_count,
+                            started.memory_mb,
+                            started.maintenance_policy,
+                            started.vcpu_min_allocated,
+                            started.date AS start_date,
+                            MIN(ended.date) AS end_date
+                        FROM `{dataset}.analysis_runs` runs
+                        INNER JOIN `{dataset}.placement_started_events` started ON runs.run_id=started.run_id
+                        LEFT OUTER JOIN `{dataset}.placement_ended_events` ended ON started.instance_id=ended.instance_id AND started.date<ended.date
+                        GROUP BY
+                            started.instance_id,
+                            started.date,
+                            started.instance_name,
+                            started.instance_zone,
+                            started.instance_project_id,
+                            started.tenancy,
+                            started.server_id,
+                            started.node_project_id,
+                            started.node_type,
+                            started.operating_system_family,
+                            started.license,
+                            started.license_type,
+                            started.machine_type,
+                            started.vcpu_count,
+                            started.memory_mb,
+                            started.maintenance_policy,
+                            started.vcpu_min_allocated)
+                  
+                        --
+                        -- Filter out the redundant entries
+                        --
+                        SELECT
+                            r.instance_id,
+                            r.instance_name,
+                            r.instance_zone,
+                            r.instance_project_id,
+                            r.tenancy,
+                            r.server_id,
+                            r.operating_system_family,
+                            r.license,
+                            r.license_type,    
+                            r.node_type,
+        
+                            MAX(r.node_project_id) AS node_project_id,
+                            MAX(r.machine_type) AS machine_type,
+                            MAX(r.vcpu_count) AS vcpu_count,
+                            MAX(r.memory_mb) AS memory_mb,
+                            MAX(r.maintenance_policy) AS maintenance_policy,
+                            MAX(r.vcpu_min_allocated) AS vcpu_min_allocated,
+
+                            MIN(r.start_date) AS start_date,
+                            r.end_date
+                        FROM raw_placements r
+                        GROUP BY
+                            r.instance_id,
+                            r.instance_name,
+                            r.instance_zone,
+                            r.instance_project_id,
+                            r.tenancy,
+                            r.server_id,
+                            r.operating_system_family,
+                            r.license,
+                            r.license_type,    
+                            r.node_type,
+                            r.end_date";
             }
 
             public static string NodeTypeDetails()
