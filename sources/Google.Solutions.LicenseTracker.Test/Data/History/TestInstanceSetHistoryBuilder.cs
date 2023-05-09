@@ -157,7 +157,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.History
                         { "instance_id", "123" }
                     }
                 },
-                Timestamp = new DateTime(2019, 12, 31)
+                Timestamp = new DateTime(2019, 12, 31, 0, 0, 0, DateTimeKind.Utc)
             }));
 
             var set = b.Build();

@@ -72,7 +72,6 @@ namespace Google.Solutions.LicenseTracker.Data.History
             DateTime to)
         {
             Debug.Assert(from <= to);
-            Debug.Assert(tenancy != Tenancies.Unknown);
             Debug.Assert(!tenancy.IsFlagCombination());
             Debug.Assert(from.Kind == DateTimeKind.Utc);
             Debug.Assert(to.Kind == DateTimeKind.Utc);
