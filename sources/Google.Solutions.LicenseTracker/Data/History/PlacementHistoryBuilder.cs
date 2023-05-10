@@ -246,6 +246,26 @@ namespace Google.Solutions.LicenseTracker.Data.History
                         firstPlacement.To)
                 };
             }
+            else if (lastEventDate != DateTime.MaxValue &&
+                this.lastStoppedOn != null &&
+                (!this.placements.Any() || this.lastStoppedOn < this.placements.First()?.From))
+            {
+                //
+                // We received an event indicating that the instance was
+                // stopped, but we did not see a corresponding start
+                // event -- so the instance must have been started
+                // before the analysis window.
+                //
+                sanitizedPlacements = new[]
+                {
+                    new Placement(
+                        Tenancies.Unknown,
+                        null,
+                        null,
+                        reportStartDate,
+                        lastStoppedOn.Value)
+                };
+            }
 
             Debug.Assert(sanitizedPlacements.All(p => p.From != p.To));
 
