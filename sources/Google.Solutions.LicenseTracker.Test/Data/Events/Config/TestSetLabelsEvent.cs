@@ -54,6 +54,10 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                         {
                           'key': 'label-2',
                           'value': 'value-2'
+                        },
+                        {
+                          'key': 'label-2',
+                          'value': 'value-2'
                         }
                       ],
                       'labelFingerprint': '�e�J�|�#',
