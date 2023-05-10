@@ -550,5 +550,95 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Lifecycle
                 new ImageLocator("windows-cloud", "family/windows-2022"),
                 e.Image);
         }
+
+        [Test]
+        public void WhenInstanceUsesTruncatedMachineType_ThenFieldsAreExtracted()
+        {
+            var json = @"
+             {
+              'protoPayload': {
+                '@type': 'type.googleapis.com/google.cloud.audit.AuditLog',
+                'status': {
+                  'code': 6,
+                  'message': 'The resource projects/project-1/zones/us-central1-a/instances/instance-1 already exists'
+                },
+                'authenticationInfo': {
+                },
+                'requestMetadata': {
+                },
+                'serviceName': 'compute.googleapis.com',
+                'methodName': 'v1.compute.instances.insert',
+                'authorizationInfo': [
+                ],
+                'resourceName': 'projects/project-1/zones/us-central1-a/instances/instance-1',
+                'request': {
+                  'name': 'instance-1',
+                  'machineType': 'zones/us-central1-a/machineTypes/f1-micro',
+                  'disks': [
+                    {
+                      'boot': true,
+                      'initializeParams': {
+                        'sourceImage': 'projects/debian-cloud/global/images/family/debian-11'
+                      },
+                      'autoDelete': true
+                    }
+                  ],
+                  'scheduling': {
+                    'preemptible': true
+                  },
+                  '@type': 'type.googleapis.com/compute.instances.insert'
+                },
+                'response': {
+                  'error': {
+                    'errors': [
+                      {
+                        'domain': 'global',
+                        'reason': 'alreadyExists',
+                        'message': 'The resource projects/project-1/zones/us-central1-a/instances/instance-1 already exists'
+                      }
+                    ],
+                    'code': 409,
+                    'message': 'The resource projects/project-1/zones/us-central1-a/instances/instance-1 already exists'
+                  },
+                  '@type': 'type.googleapis.com/error'
+                },
+                'resourceLocation': {
+                  'currentLocations': [
+                    'us-central1-a'
+                  ]
+                }
+              },
+              'insertId': 'lnilyfe43phg',
+              'resource': {
+                'type': 'gce_instance',
+                'labels': {
+                  'instance_id': '581151293000000',
+                  'zone': 'us-central1-a',
+                  'project_id': 'project-1'
+                }
+              },
+              'timestamp': '2023-05-01T04:17:36.024201Z',
+              'severity': 'ERROR',
+              'logName': 'projects/project-1/logs/cloudaudit.googleapis.com%2Factivity',
+              'receiveTimestamp': '2023-05-01T04:17:36.881695611Z'
+            }";
+
+            var r = LogRecord.Deserialize(json)!;
+            Assert.IsTrue(InsertInstanceEvent.IsInsertInstanceEvent(r));
+
+            var e = (InsertInstanceEvent)r.ToEvent();
+
+            Assert.AreEqual(581151293000000, e.InstanceId);
+            Assert.AreEqual("instance-1", e.InstanceReference?.Name);
+            Assert.AreEqual("us-central1-a", e.InstanceReference?.Zone);
+            Assert.AreEqual("project-1", e.InstanceReference?.ProjectId);
+            Assert.AreEqual("ERROR", e.Severity);
+            Assert.AreEqual(
+                new InstanceLocator("project-1", "us-central1-a", "instance-1"),
+                e.InstanceReference);
+            Assert.AreEqual(
+                new MachineTypeLocator("-", "us-central1-a", "f1-micro"),
+                e.MachineType);
+        }
     }
 }

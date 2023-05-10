@@ -40,6 +40,12 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Config
             if (logRecord.ProtoPayload?.Request?.Value<string>("machineType") is var machineType &&
                 !string.IsNullOrEmpty(machineType))
             {
+                if (machineType.StartsWith("zones/"))
+                {
+                    // b/281762203.
+                    machineType = "projects/-/" + machineType;
+                }
+
                 this.MachineType = MachineTypeLocator.FromString(machineType);
             }
         }
