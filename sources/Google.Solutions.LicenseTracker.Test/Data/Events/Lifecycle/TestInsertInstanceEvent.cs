@@ -637,7 +637,7 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Lifecycle
                 new InstanceLocator("project-1", "us-central1-a", "instance-1"),
                 e.InstanceReference);
             Assert.AreEqual(
-                new MachineTypeLocator("-", "us-central1-a", "f1-micro"),
+                new MachineTypeLocator("project-1", "us-central1-a", "f1-micro"),
                 e.MachineType);
         }
     }
