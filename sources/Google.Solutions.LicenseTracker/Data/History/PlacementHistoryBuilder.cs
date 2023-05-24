@@ -219,7 +219,7 @@ namespace Google.Solutions.LicenseTracker.Data.History
 
         public PlacementHistory Build(DateTime reportStartDate)
         {
-            IEnumerable<Placement> sanitizedPlacements = this.placements;
+            IEnumerable<Placement> sanitizedPlacements;
 
             if (this.placements.Count == 1 &&
                 this.placements.First() is Placement firstPlacement &&
@@ -264,7 +264,11 @@ namespace Google.Solutions.LicenseTracker.Data.History
                         null,
                         reportStartDate,
                         lastStoppedOn.Value)
-                };
+                }.Concat(this.placements);
+            }
+            else
+            {
+                 sanitizedPlacements = this.placements;
             }
 
             Debug.Assert(sanitizedPlacements.All(p => p.From != p.To));
