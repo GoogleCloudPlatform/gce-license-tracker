@@ -586,18 +586,23 @@ namespace Google.Solutions.LicenseTracker.Services
                         --
                         -- Filter out the redundant entries
                         --
+                        -- When a delta analysis finds a VM to be running at the start of the
+                        -- reporting window, it writes a placement_started event (typically
+                        -- with a 00:00h timestamp. These entries need to be coalesced with
+                        -- the ones produced by previous analysis runs and we do that by
+                        -- aggregating them.
+                        --
                         SELECT
                             r.instance_id,
                             r.instance_name,
                             r.instance_zone,
                             r.instance_project_id,
-                            r.tenancy,
-                            r.server_id,
-                            r.operating_system_family,
-                            r.license,
-                            r.license_type,    
-                            r.node_type,
-        
+                            MAX(r.tenancy) AS tenancy,
+                            MAX(r.server_id) AS server_id,
+                            MAX(r.operating_system_family) AS operating_system_family,
+                            MAX(r.license) AS license,
+                            MAX(r.license_type) AS license_type,    
+                            MAX(r.node_type) AS node_type,    
                             MAX(r.node_project_id) AS node_project_id,
                             MAX(r.machine_type) AS machine_type,
                             MAX(r.vcpu_count) AS vcpu_count,
@@ -613,12 +618,6 @@ namespace Google.Solutions.LicenseTracker.Services
                             r.instance_name,
                             r.instance_zone,
                             r.instance_project_id,
-                            r.tenancy,
-                            r.server_id,
-                            r.operating_system_family,
-                            r.license,
-                            r.license_type,    
-                            r.node_type,
                             r.end_date";
             }
 
