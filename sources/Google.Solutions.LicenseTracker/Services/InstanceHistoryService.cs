@@ -149,6 +149,26 @@ namespace Google.Solutions.LicenseTracker.Services
                         await nodes.ConfigureAwait(false),
                         await disks.ConfigureAwait(false),
                         projectId);
+
+                    //
+                    // Query logs to replay history.
+                    // 
+                    // NB. We could query mutliple projects at once, but the API
+                    // quickly becomes unreliable (read: throws random 500 errors)
+                    // when doing so. Therefore, we're conservative and only query
+                    // one project at a time.
+                    //
+                    await this.auditLogAdapter
+                        .ProcessInstanceEventsAsync(
+                            new[] { projectId },
+                            builder.StartDate,
+                            builder,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+
+                    this.logger.LogInformation(
+                        "Finished analyzing placement history for project {project}...",
+                        projectId);
                 }
                 catch (ResourceAccessDeniedException e)
                 {
@@ -157,26 +177,6 @@ namespace Google.Solutions.LicenseTracker.Services
                         projectId,
                         e.FullMessage());
                 }
-
-                //
-                // Query logs to replay history.
-                // 
-                // NB. We could query mutliple projects at once, but the API
-                // quickly becomes unreliable (read: throws random 500 errors)
-                // when doing so. Therefore, we're conservative and only query
-                // one project at a time.
-                //
-                await this.auditLogAdapter
-                    .ProcessInstanceEventsAsync(
-                        new[] { projectId },
-                        builder.StartDate,
-                        builder,
-                        cancellationToken)
-                    .ConfigureAwait(false);
-
-                this.logger.LogInformation(
-                    "Finished analyzing placement history for project {project}...",
-                    projectId);
             }
 
             return builder.Build();
