@@ -51,6 +51,12 @@ namespace Google.Solutions.LicenseTracker.Services
         private readonly IBigQueryAdapter bigQueryAdapter;
         private readonly ILogger logger;
 
+#if DEBUG
+        private const int MaxRowsPerInsert = 10;
+#else
+        private const int MaxRowsPerInsert = 1000;
+#endif
+
         public ReportDatasetService(
             IBigQueryAdapter bigQueryAdapter,
             ILogger<ReportDatasetService> logger)
@@ -189,74 +195,94 @@ namespace Google.Solutions.LicenseTracker.Services
 
             if (report.StartedPlacements.Any())
             {
-                await this.bigQueryAdapter.InsertAsync(
-                        new TableLocator(dataset, TableNames.PlacementStartedEvents),
-                        report.StartedPlacements
-                            .Where(p => p.Instance != null)
-                            .Select(p => new Dictionary<string, object?>
+                var rows = report.StartedPlacements
+                    .Where(p => p.Instance != null)
+                    .Select(p => new Dictionary<string, object?>
+                    {
+                        { FieldSchemas.RunId.Name, runId },
+                        { FieldSchemas.InstanceId.Name, p.InstanceId },
+                        { FieldSchemas.InstanceProjectId.Name, p.Instance!.ProjectId },
+                        { FieldSchemas.InstanceZone.Name, p.Instance.Zone },
+                        { FieldSchemas.InstanceName.Name, p.Instance.Name },
+                        { FieldSchemas.ImageName.Name, p.Image?.Name },
+                        { FieldSchemas.Date.Name, p.Placement.From },
+                        { FieldSchemas.Tenancy.Name, p.Placement.Tenancy switch
                             {
-                                { FieldSchemas.RunId.Name, runId },
-                                { FieldSchemas.InstanceId.Name, p.InstanceId },
-                                { FieldSchemas.InstanceProjectId.Name, p.Instance!.ProjectId },
-                                { FieldSchemas.InstanceZone.Name, p.Instance.Zone },
-                                { FieldSchemas.InstanceName.Name, p.Instance.Name },
-                                { FieldSchemas.ImageName.Name, p.Image?.Name },
-                                { FieldSchemas.Date.Name, p.Placement.From },
-                                { FieldSchemas.Tenancy.Name, p.Placement.Tenancy switch
-                                    {
-                                        Tenancies.Fleet => "F",
-                                        Tenancies.SoleTenant => "S",
-                                        _ => null
-                                    } },
-                                { FieldSchemas.ServerId.Name, p.Placement.ServerId },
-                                { FieldSchemas.NodeType.Name, p.Placement.NodeType?.Name },
-                                { FieldSchemas.NodeProjectId.Name, p.Placement.NodeType?.ProjectId },
-                                { FieldSchemas.OperatingSystemFamily.Name, p.License?.OperatingSystem switch
-                                    {
-                                        OperatingSystemTypes.Windows => "WIN",
-                                        OperatingSystemTypes.Linux => "LINUX",
-                                        _ => null
-                                    }
-                                },
-                                { FieldSchemas.License.Name, p.License?.License?.ToString() },
-                                { FieldSchemas.LicenseType.Name, p.License?.LicenseType switch
-                                    {
-                                        LicenseTypes.Byol => "BYOL",
-                                        LicenseTypes.Spla => "SPLA",
-                                        _ => null
-                                    }
-                                },
-                                { FieldSchemas.MachineType.Name, p.Machine?.Type?.Name },
-                                { FieldSchemas.VcpuCount.Name, p.Machine?.VirtualCpuCount },
-                                { FieldSchemas.Memory.Name, p.Machine?.MemoryMb },
-                                { FieldSchemas.MaintenancePolicy.Name, p.SchedulingPolicy?.MaintenancePolicy },
-                                { FieldSchemas.VcpuMinAllocated.Name, p.SchedulingPolicy?.MinNodeCpus },
-                                { FieldSchemas.Labels.Name, p.Labels
-                                    .EnsureNotNull()
-                                    .Select(kvp => new { key = kvp.Key, value = kvp.Value })
-                                    .ToArray()
-                                }
-                            })
-                            .ToList(),
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                                Tenancies.Fleet => "F",
+                                Tenancies.SoleTenant => "S",
+                                _ => null
+                            } },
+                        { FieldSchemas.ServerId.Name, p.Placement.ServerId },
+                        { FieldSchemas.NodeType.Name, p.Placement.NodeType?.Name },
+                        { FieldSchemas.NodeProjectId.Name, p.Placement.NodeType?.ProjectId },
+                        { FieldSchemas.OperatingSystemFamily.Name, p.License?.OperatingSystem switch
+                            {
+                                OperatingSystemTypes.Windows => "WIN",
+                                OperatingSystemTypes.Linux => "LINUX",
+                                _ => null
+                            }
+                        },
+                        { FieldSchemas.License.Name, p.License?.License?.ToString() },
+                        { FieldSchemas.LicenseType.Name, p.License?.LicenseType switch
+                            {
+                                LicenseTypes.Byol => "BYOL",
+                                LicenseTypes.Spla => "SPLA",
+                                _ => null
+                            }
+                        },
+                        { FieldSchemas.MachineType.Name, p.Machine?.Type?.Name },
+                        { FieldSchemas.VcpuCount.Name, p.Machine?.VirtualCpuCount },
+                        { FieldSchemas.Memory.Name, p.Machine?.MemoryMb },
+                        { FieldSchemas.MaintenancePolicy.Name, p.SchedulingPolicy?.MaintenancePolicy },
+                        { FieldSchemas.VcpuMinAllocated.Name, p.SchedulingPolicy?.MinNodeCpus },
+                        { FieldSchemas.Labels.Name, p.Labels
+                            .EnsureNotNull()
+                            .Select(kvp => new { key = kvp.Key, value = kvp.Value })
+                            .ToArray()
+                        }
+                    })
+                    .ToList();
+
+                //
+                // Split rows into smaller chunks so that we don't exceed
+                // the maximum request size.
+                //
+                foreach (var chunkOfRows in rows.Chunk(MaxRowsPerInsert))
+                {
+                    await this.bigQueryAdapter
+                        .InsertAsync(
+                            new TableLocator(dataset, TableNames.PlacementStartedEvents),
+                            chunkOfRows,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
             }
 
             if (report.EndedPlacements.Any())
             {
-                await this.bigQueryAdapter.InsertAsync(
-                        new TableLocator(dataset, TableNames.PlacementEndedEvents),
-                        report.EndedPlacements
-                            .Where(p => p.Instance != null)
-                            .Select(p => new Dictionary<string, object?>
-                            {
-                                { FieldSchemas.RunId.Name, runId },
-                                { FieldSchemas.InstanceId.Name, p.InstanceId },
-                                { FieldSchemas.Date.Name, p.Placement.To }
-                            })
-                            .ToList(),
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                var rows = report.EndedPlacements
+                    .Where(p => p.Instance != null)
+                    .Select(p => new Dictionary<string, object?>
+                    {
+                        { FieldSchemas.RunId.Name, runId },
+                        { FieldSchemas.InstanceId.Name, p.InstanceId },
+                        { FieldSchemas.Date.Name, p.Placement.To }
+                    })
+                    .ToList();
+
+                //
+                // Split rows into smaller chunks so that we don't exceed
+                // the maximum request size.
+                //
+                foreach (var chunkOfRows in rows.Chunk(MaxRowsPerInsert))
+                {
+                    await this.bigQueryAdapter
+                        .InsertAsync(
+                            new TableLocator(dataset, TableNames.PlacementEndedEvents),
+                            chunkOfRows,
+                            cancellationToken)
+                        .ConfigureAwait(false);
+                }
             }
 
             //
@@ -266,7 +292,8 @@ namespace Google.Solutions.LicenseTracker.Services
             var assemblyVersion = GetType().Assembly.GetName().Version;
             Debug.Assert(assemblyVersion != null);
 
-            await this.bigQueryAdapter.InsertAsync(
+            await this.bigQueryAdapter
+                .InsertAsync(
                     new TableLocator(dataset, TableNames.AnalyisRuns),
                     new[] {
                         new Dictionary<string, object?>
