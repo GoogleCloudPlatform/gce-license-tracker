@@ -71,8 +71,8 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Config
                     this.Labels = labels
                         .OfType<JObject>()
                         .Select(item => new {
-                            Key = (string?)item.PropertyValues().ElementAtOrDefault(0),
-                            Value = (string?)item.PropertyValues().ElementAtOrDefault(1)
+                            Key = (string?)item.Value<string?>("key"),
+                            Value = (string?)item.Value<string?>("value")
                         })
                         .Where(item => item.Key != null && item.Value != null)
                         .DistinctBy(item => item.Key)

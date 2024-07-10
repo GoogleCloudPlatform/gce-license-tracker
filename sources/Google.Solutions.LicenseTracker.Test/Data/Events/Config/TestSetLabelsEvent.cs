@@ -52,8 +52,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Config
                           'value': 'value-1'
                         },
                         {
-                          'key': 'label-2',
-                          'value': 'value-2'
+                          'value': 'value-2',
+                          'key': 'label-2'
                         },
                         {
                           'key': 'label-2',
