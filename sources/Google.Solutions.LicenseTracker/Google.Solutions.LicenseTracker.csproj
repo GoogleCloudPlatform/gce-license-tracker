@@ -7,17 +7,17 @@
     <Nullable>enable</Nullable>
     <AnalysisLevel>5.0</AnalysisLevel>
     <RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
-    <Version>1.3.0</Version>
+    <Version>1.3.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="google.apis.auth" Version="1.64.0" />
-    <PackageReference Include="Google.Apis.Bigquery.v2" Version="1.64.0.3202" />
-    <PackageReference Include="Google.Apis.CloudResourceManager.v1" Version="1.64.0.3216" />
-    <PackageReference Include="Google.Apis.Compute.v1" Version="1.64.0.3225" />
-    <PackageReference Include="Google.Apis.Logging.v2" Version="1.64.0.3220" />
-    <PackageReference Include="Google.Apis.ServiceUsage.v1" Version="1.64.0.3239" />
-    <PackageReference Include="Google.Apis.Storage.v1" Version="1.64.0.3222" />
+    <PackageReference Include="google.apis.auth" Version="1.68.0" />
+    <PackageReference Include="Google.Apis.Bigquery.v2" Version="1.68.0.3454" />
+    <PackageReference Include="Google.Apis.CloudResourceManager.v1" Version="1.68.0.3356" />
+    <PackageReference Include="Google.Apis.Compute.v1" Version="1.68.0.3456" />
+    <PackageReference Include="Google.Apis.Logging.v2" Version="1.68.0.3458" />
+    <PackageReference Include="Google.Apis.ServiceUsage.v1" Version="1.68.0.3441" />
+    <PackageReference Include="Google.Apis.Storage.v1" Version="1.68.0.3463" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="mono.options" Version="6.12.0.148" />
