@@ -111,6 +111,7 @@ namespace Google.Solutions.LicenseTracker.Data.Events.Lifecycle
                             Value = (string?)item.PropertyValues().ElementAtOrDefault(1)
                         })
                         .Where(item => item.Key != null && item.Value != null)
+                        .DistinctBy(item => item.Key)
                         .ToDictionary(kvp => kvp.Key!, kvp => kvp.Value!);
                 }
             }

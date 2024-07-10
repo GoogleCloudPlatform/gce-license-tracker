@@ -189,6 +189,140 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Lifecycle
             Assert.AreEqual("", e.Labels["label-2"]);
         }
 
+
+        [Test]
+        public void WhenInstanceHasDuplicateLabels_ThenFieldsAreExtracted()
+        {
+            var json = @"
+             {
+               'protoPayload': {
+                 '@type': 'type.googleapis.com/google.cloud.audit.AuditLog',
+                 'authenticationInfo': {
+                 },
+                 'requestMetadata': {
+                 },
+                 'serviceName': 'compute.googleapis.com',
+                 'methodName': 'v1.compute.instances.insert',
+                 'authorizationInfo': [
+                 ],
+                 'resourceName': 'projects/project-1/zones/us-central1-a/instances/instance-1',
+                 'request': {
+                   'name': 'instance-group-1-xbtt',
+                   'machineType': 'projects/project-1/zones/us-central1-a/machineTypes/n1-standard-4',
+                   'canIpForward': false,
+                   'networkInterfaces': [
+                     {
+                       'network': 'projects/project-1/global/networks/default',
+                       'accessConfigs': [
+                         {
+                           'type': 'ONE_TO_ONE_NAT',
+                           'name': 'External NAT',
+                           'networkTier': 'PREMIUM'
+                         }
+                       ],
+                       'subnetwork': 'projects/project-1/regions/us-central1/subnetworks/default'
+                     }
+                   ],
+                   'disks': [
+                     {
+                       'type': 'PERSISTENT',
+                       'mode': 'READ_WRITE',
+                       'deviceName': 'instance-1',
+                       'boot': true,
+                       'initializeParams': {
+                         'sourceImage': 'projects/project-1/global/images/image-1',
+                         'diskSizeGb': '127',
+                         'diskType': 'projects/project-1/zones/us-central1-a/diskTypes/pd-standard'
+                       },
+                       'autoDelete': true
+                     }
+                   ],
+                   'serviceAccounts': [
+                     {
+                       'email': '111-compute@developer.gserviceaccount.com',
+                       'scopes': [
+                         'https://www.googleapis.com/auth/devstorage.read_only',
+                         'https://www.googleapis.com/auth/logging.write',
+                         'https://www.googleapis.com/auth/monitoring.write',
+                         'https://www.googleapis.com/auth/servicecontrol',
+                         'https://www.googleapis.com/auth/service.management.readonly',
+                         'https://www.googleapis.com/auth/trace.append'
+                       ]
+                     }
+                   ],
+                   'scheduling': {
+                     'onHostMaintenance': 'TERMINATE',
+                     'automaticRestart': false,
+                     'preemptible': false,
+                     'nodeAffinitys': [
+                       {
+                         'key': 'license',
+                         'operator': 'IN',
+                         'values': [
+                           'byol'
+                         ]
+                       }
+                     ]
+                   },
+                  'labels': [
+                    {
+                      'key': 'label-1',
+                      'value': 'value-1'
+                    },
+                    {
+                      'key': 'label-1',
+                      'value': 'value-2'
+                    }
+                  ],
+                   'displayDevice': {
+                     'enableDisplay': false
+                   },
+                   'links': [
+                     {
+                       'target': 'projects/project-1/locations/us-central1-a/instances/instance-group-1-xbtt',
+                       'type': 'MEMBER_OF',
+                       'source': 'projects/project-1/locations/us-central1-a/instanceGroupManagers/instance-group-1@3579973466633327805'
+                     }
+                   ],
+                   'requestId': '4a68f20d-9f80-32f3-adc4-acf842d7ae0b',
+                   '@type': 'type.googleapis.com/compute.instances.insert'
+                 },
+                 'response': {
+                 },
+                 'resourceLocation': {
+                   'currentLocations': [
+                     'us-central1-a'
+                   ]
+                 }
+               },
+               'insertId': '3vuqdhe1iqbu',
+               'resource': {
+                 'type': 'gce_instance',
+                 'labels': {
+                   'zone': 'us-central1-a',
+                   'instance_id': '11111111631960822',
+                   'project_id': 'project-1'
+                 }
+               },
+               'timestamp': '2020-05-03T12:15:29.009Z',
+               'severity': 'NOTICE',
+               'logName': 'projects/project-1/logs/cloudaudit.googleapis.com%2Factivity',
+               'operation': {
+                 'id': 'operation-1588508129141-5a4bd5ec2a16d-418ba83e-11fc353d',
+                 'producer': 'compute.googleapis.com',
+                 'first': true
+               },
+               'receiveTimestamp': '2020-05-03T12:15:30.903794912Z'
+             }
+             ";
+
+            var r = LogRecord.Deserialize(json)!;
+            Assert.IsTrue(InsertInstanceEvent.IsInsertInstanceEvent(r));
+
+            var e = (InsertInstanceEvent)r.ToEvent();
+            Assert.AreEqual("value-1", e?.Labels?["label-1"]);
+        }
+
         [Test]
         public void WhenInstanceUsesCpuOvercommit_ThenSchedulingPolicyIsSet()
         {
