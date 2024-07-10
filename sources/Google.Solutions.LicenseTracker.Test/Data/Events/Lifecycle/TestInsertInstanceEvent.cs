@@ -266,8 +266,8 @@ namespace Google.Solutions.LicenseTracker.Test.Data.Events.Lifecycle
                    },
                   'labels': [
                     {
-                      'key': 'label-1',
-                      'value': 'value-1'
+                      'value': 'value-1',
+                      'key': 'label-1'
                     },
                     {
                       'key': 'label-1',
