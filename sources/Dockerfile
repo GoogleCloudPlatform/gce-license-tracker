@@ -23,7 +23,7 @@
 # Build.
 #------------------------------------------------------------------------------
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copy local code to the container image.
@@ -36,7 +36,7 @@ RUN dotnet publish -c Release -o publish Google.Solutions.LicenseTracker/Google.
 # Run.
 #------------------------------------------------------------------------------
 
-FROM mcr.microsoft.com/dotnet/runtime:6.0 AS runtime
+FROM mcr.microsoft.com/dotnet/runtime:8.0 AS runtime
 
 WORKDIR /app
 COPY --from=build /app/publish ./
